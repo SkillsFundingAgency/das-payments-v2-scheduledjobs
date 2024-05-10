@@ -1,0 +1,50 @@
+parameters:
+  TargetProjects: 'src/**/*.csproj'
+jobs:
+- job: CodeBuild
+  pool:
+    name: DCT
+    #demands: LATEST_DOTNET_VERSION
+    workspace:
+      clean: all
+  variables:
+     
+  - group: BUILD Management Resources
+  steps:
+  - template: /azure-pipelines-templates/build/step/gitversion.yml
+
+  
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk 6.0.x'
+    inputs:
+      version: 6.0.x
+      performMultiLevelLookup: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore'
+    inputs:
+      command: restore
+      projects: ${{ parameters.TargetProjects }}
+      vstsFeed: '1d5deb2d-cf8b-4bb1-b147-d13bc246e3f4'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
+    inputs:
+      projects: ${{ parameters.TargetProjects }}
+      arguments: '--configuration $(BuildConfiguration)'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet publish'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: src/SFA.DAS.Payments.ScheduledJobs/SFA.DAS.Payments.ScheduledJobs.csproj
+      arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\ScheduledJobs'
+      modifyOutputPath: false
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Pipeline Artifact'
+    inputs:
+      targetPath: '$(build.artifactstagingdirectory)\ScheduledJobs'
+      artifact: ScheduledJobs-FunctionApp
+
