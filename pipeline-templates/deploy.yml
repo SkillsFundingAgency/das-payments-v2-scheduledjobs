@@ -26,4 +26,4 @@ jobs:
             azureSubscription: ${{ parameters.azureSubscription }}
             appType: functionApp
             appName: ${{ parameters.appName }}
-            package: '$(pipeline.workspace)/ScheduledJobs/ScheduledJobs-FunctionApp.zip'
+            package: '$(pipeline.workspace)/ScheduledJobs-FunctionApp/ScheduledJobs.zip'

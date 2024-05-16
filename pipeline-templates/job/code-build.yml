@@ -4,11 +4,9 @@ jobs:
 - job: CodeBuild
   pool:
     name: DCT
-    #demands: LATEST_DOTNET_VERSION
     workspace:
       clean: all
   variables:
-     
   - group: BUILD Management Resources
   steps:
   - template: /azure-pipelines-templates/build/step/gitversion.yml
