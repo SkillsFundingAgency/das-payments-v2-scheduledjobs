@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E176BAAB-30C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Payments.ScheduledJobs.UnitTests", "SFA.DAS.Payments.ScheduledJobs.UnitTests\SFA.DAS.Payments.ScheduledJobs.UnitTests.csproj", "{DA5ABC45-22D6-4661-BBED-53A322360612}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.ScheduledJobs.AcceptanceTests", "SFA.DAS.Payments.ScheduledJobs.AcceptanceTests\SFA.DAS.Payments.ScheduledJobs.AcceptanceTests.csproj", "{820B9CE6-ED12-4AD6-9B13-0E5CE0D656DC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Payments.ScheduledJobs", "SFA.DAS.Payments.ScheduledJobs\SFA.DAS.Payments.ScheduledJobs.csproj", "{C80E98C8-C964-41DA-BF80-F8080C18BF89}"
 EndProject
 Global
@@ -21,10 +19,6 @@ Global
 		{DA5ABC45-22D6-4661-BBED-53A322360612}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA5ABC45-22D6-4661-BBED-53A322360612}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA5ABC45-22D6-4661-BBED-53A322360612}.Release|Any CPU.Build.0 = Release|Any CPU
-		{820B9CE6-ED12-4AD6-9B13-0E5CE0D656DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{820B9CE6-ED12-4AD6-9B13-0E5CE0D656DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{820B9CE6-ED12-4AD6-9B13-0E5CE0D656DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{820B9CE6-ED12-4AD6-9B13-0E5CE0D656DC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C80E98C8-C964-41DA-BF80-F8080C18BF89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C80E98C8-C964-41DA-BF80-F8080C18BF89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C80E98C8-C964-41DA-BF80-F8080C18BF89}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -35,7 +29,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DA5ABC45-22D6-4661-BBED-53A322360612} = {E176BAAB-30C6-4E7E-B534-EEE8E15DA8CE}
-		{820B9CE6-ED12-4AD6-9B13-0E5CE0D656DC} = {E176BAAB-30C6-4E7E-B534-EEE8E15DA8CE}
 		{C80E98C8-C964-41DA-BF80-F8080C18BF89} = {E176BAAB-30C6-4E7E-B534-EEE8E15DA8CE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

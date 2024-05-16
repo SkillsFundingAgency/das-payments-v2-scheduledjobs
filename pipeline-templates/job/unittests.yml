@@ -4,8 +4,6 @@ jobs:
     name: DCT Build Pool
     workspace:
       clean: all
-  
-
 
   variables:
     BuildConfiguration: 'Release'
