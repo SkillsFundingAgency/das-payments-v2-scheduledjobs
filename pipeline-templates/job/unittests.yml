@@ -49,7 +49,7 @@ jobs:
   - task: MSBuild@1
     displayName: 'Build solution ScheduledJobsFunction'
     inputs:
-      solution: src/SFA.DAS.Payments.ScheduledJobs/SFA.DAS.Payments.ScheduledJobs.csproj
+      #solution: src/SFA.DAS.Payments.ScheduledJobs/SFA.DAS.Payments.ScheduledJobs.csproj
       msbuildArchitecture: x64
       platform: '$(BuildPlatform)'
       configuration: '$(BuildConfiguration)'
@@ -58,7 +58,7 @@ jobs:
       maximumCpuCount: true
       logProjectEvents: true
       createLogFile: true
-      enabled: false
+      enabled: true
 
   - task: PublishPipelineArtifact@1
     displayName: 'Publish Pipeline Artifact'
