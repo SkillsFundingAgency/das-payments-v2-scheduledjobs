@@ -26,9 +26,30 @@ Setup instructions: https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pa
 
 ### Config
 
-As detailed in: https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/644972941/Developer+Configuration+Settings
+To run locally, create a file `local.settings.json` in the `SFA.DAS.Payments.ScheduledJobs` project, containing the following:
 
-Select the configuration for the Earning Events application
+```
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "DataLockAuditDataCleanUpQueue": "{use queue name from your Payments V2 service bus namespace}",
+    "EarningAuditDataCleanUpQueue": "{use queue name from your Payments V2 service bus namespace}",
+    "FundingSourceAuditDataCleanUpQueue": "{use queue name from your Payments V2 service bus namespace}",
+    "LevyAccountSchedule": "0 6 * * *",
+    "RequiredPaymentAuditDataCleanUpQueue": "{use queue name from your Payments V2 service bus namespace}",
+    "ApprenticeshipValidationSchedule": "0 6 * * *",
+    "AuditDataCleanUpSchedule": "0 6 * * *",
+    "LevyAccountValidationSchedule": "0 6 * * *"
+  },
+  "ConnectionStrings": {
+    "ServiceBusConnectionString": "{use connection string from your Payments V2 service bus namespace}"
+  }
+}
+```
+
+The CRON settings in the above configuration are just examples, to change the frequency of the jobs to a time other than at 6am daily, refer to the website https://crontab.guru/ for the relevant CRON syntax.
 
 ## 🔗 External Dependencies
 
