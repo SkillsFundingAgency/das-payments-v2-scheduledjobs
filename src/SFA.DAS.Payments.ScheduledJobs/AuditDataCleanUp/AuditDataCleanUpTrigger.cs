@@ -1,31 +1,39 @@
 using System.Threading.Tasks;
 using AzureFunctions.Autofac;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
+using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs;
 
 // ReSharper disable UnusedMember.Global
 
 namespace SFA.DAS.Payments.ScheduledJobs.AuditDataCleanUp
 {
     [DependencyInjectionConfig(typeof(DependencyInjectionConfig))]
-    public static class AuditDataCleanUpTrigger
+    public class AuditDataCleanUpTrigger
     {
-        [FunctionName("TimerTriggerAuditDataCleanup")]
-        public static async Task TimerTriggerAuditDataCleanup(
-            [TimerTrigger("%AuditDataCleanUpSchedule%", RunOnStartup = false)] TimerInfo timerInfo,
-            [Inject] IAuditDataCleanUpService auditDataCleanUpService)
+        private readonly ILogger _logger;
+        private readonly IAuditDataCleanUpService _auditDataCleanUpService;
+
+        public AuditDataCleanUpTrigger(ILogger<AuditDataCleanUpTrigger> logger, IAuditDataCleanUpService auditDataCleanUpService)
         {
-            await auditDataCleanUpService.TriggerAuditDataCleanup();
+            _logger = logger;
+            _auditDataCleanUpService = auditDataCleanUpService;
         }
 
-        [FunctionName("HttpTriggerAuditDataCleanup")]
-        public static async Task HttpTriggerAuditDataCleanup(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest httpRequest,
-            [Inject] IAuditDataCleanUpService auditDataCleanUpService)
+        [Function("TimerTriggerAuditDataCleanup")]
+        public async Task TimerTriggerAuditDataCleanup(
+            [TimerTrigger("%AuditDataCleanUpSchedule%", RunOnStartup = false)] TimerInfo timerInfo)
         {
-            await auditDataCleanUpService.TriggerAuditDataCleanup();
+            await _auditDataCleanUpService.TriggerAuditDataCleanup();
+        }
+
+        [Function("HttpTriggerAuditDataCleanup")]
+        public async Task HttpTriggerAuditDataCleanup(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest httpRequest)
+        {
+            await _auditDataCleanUpService.TriggerAuditDataCleanup();
         }
     }
 }

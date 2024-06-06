@@ -1,22 +1,33 @@
 ﻿using System.Threading.Tasks;
 using AzureFunctions.Autofac;
-using Microsoft.Azure.WebJobs;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
+using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs;
+
 // ReSharper disable UnusedMember.Global
 
 namespace SFA.DAS.Payments.ScheduledJobs.AuditDataCleanUp
 {
     [DependencyInjectionConfig(typeof(DependencyInjectionConfig))]
-    public static class RequiredPaymentAuditDataCleanUp
+    public class RequiredPaymentAuditDataCleanUp
     {
-        [FunctionName("RequiredPaymentEventAuditDataCleanUp")]
-        public static async Task RequiredPaymentEventAuditDataCleanUp([ServiceBusTrigger("%RequiredPaymentAuditDataCleanUpQueue%", Connection = "ServiceBusConnectionString")] string message,
-                                                                      [Inject] IAuditDataCleanUpService auditDataCleanUpService)
+        private readonly ILogger _logger;
+        private readonly IAuditDataCleanUpService _auditDataCleanUpService;
+
+        public RequiredPaymentAuditDataCleanUp(ILogger<RequiredPaymentAuditDataCleanUp> logger, IAuditDataCleanUpService auditDataCleanUpService)
+        {
+            _logger = logger;
+            _auditDataCleanUpService = auditDataCleanUpService;
+        }
+
+        [Function("RequiredPaymentEventAuditDataCleanUp")]
+        public async Task RequiredPaymentEventAuditDataCleanUp([ServiceBusTrigger("%RequiredPaymentAuditDataCleanUpQueue%", Connection = "ServiceBusConnectionString")] string message)
         {
             var batch = JsonConvert.DeserializeObject<SubmissionJobsToBeDeletedBatch>(message);
 
-            await auditDataCleanUpService.RequiredPaymentEventAuditDataCleanUp(batch);
+            await _auditDataCleanUpService.RequiredPaymentEventAuditDataCleanUp(batch);
         }
     }
 }
