@@ -13,10 +13,10 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.1469" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.31" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.31" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.32" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.32" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.0-prerelease-18" />
+    <PackageReference Include="SFA.DAS.Payments.Application" Version="2.0.6-prerelease-22" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.Payments.ScheduledJobs\SFA.DAS.Payments.ScheduledJobs.csproj" />
