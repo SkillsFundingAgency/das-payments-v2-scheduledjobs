@@ -1,22 +1,18 @@
 using System;
 using System.Threading.Tasks;
-using AzureFunctions.Autofac;
 using Microsoft.AspNetCore.Http;
 using NServiceBus;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.FundingSource.Messages.Commands;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.Configuration;
-using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
 
 // ReSharper disable UnusedMember.Global
 
 namespace SFA.DAS.Payments.ScheduledJobs
 {
-    [DependencyInjectionConfig(typeof(DependencyInjectionConfig))]
     public class LevyAccountImport
     {
         private readonly ILogger _logger;

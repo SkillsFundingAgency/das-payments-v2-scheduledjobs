@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using AzureFunctions.Autofac;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
 using Microsoft.Extensions.Logging;
@@ -10,7 +9,6 @@ using Microsoft.Azure.WebJobs;
 
 namespace SFA.DAS.Payments.ScheduledJobs.AuditDataCleanUp
 {
-    [DependencyInjectionConfig(typeof(DependencyInjectionConfig))]
     public class DataLockAuditDataCleanUp
     {
         private readonly ILogger _logger;

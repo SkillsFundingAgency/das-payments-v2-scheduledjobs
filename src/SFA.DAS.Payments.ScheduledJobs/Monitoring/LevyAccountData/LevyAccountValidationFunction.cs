@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using AzureFunctions.Autofac;
 using Microsoft.AspNetCore.Http;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
 using Microsoft.Azure.Functions.Worker;
@@ -7,7 +6,6 @@ using Microsoft.Azure.WebJobs;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
 {
-    [DependencyInjectionConfig(typeof(DependencyInjectionConfig))]
     public class LevyAccountValidationFunction
     {
         private readonly ILevyAccountValidationService _levyAccountValidationService;

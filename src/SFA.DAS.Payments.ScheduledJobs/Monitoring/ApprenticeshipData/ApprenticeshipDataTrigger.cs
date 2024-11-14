@@ -1,16 +1,13 @@
 using System;
 using System.Threading.Tasks;
-using AzureFunctions.Autofac;
 using Microsoft.AspNetCore.Http;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.ApprenticeshipData
 {
-    [DependencyInjectionConfig(typeof(DependencyInjectionConfig))]
     public class ApprenticeshipDataTrigger
     {
         private readonly ILogger _logger;

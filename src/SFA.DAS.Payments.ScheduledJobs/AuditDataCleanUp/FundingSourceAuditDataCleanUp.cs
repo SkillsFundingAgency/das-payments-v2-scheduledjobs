@@ -1,16 +1,13 @@
 ﻿using System.Threading.Tasks;
-using AzureFunctions.Autofac;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
 
 // ReSharper disable UnusedMember.Global
 
 namespace SFA.DAS.Payments.ScheduledJobs.AuditDataCleanUp
 {
-    [DependencyInjectionConfig(typeof(DependencyInjectionConfig))]
     public class FundingSourceAuditDataCleanUp
     {
         private readonly ILogger _logger;
