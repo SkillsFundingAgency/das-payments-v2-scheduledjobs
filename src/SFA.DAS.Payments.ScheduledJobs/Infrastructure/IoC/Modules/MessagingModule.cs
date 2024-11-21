@@ -1,13 +1,10 @@
-using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using NServiceBus;
-using NServiceBus.Features;
+using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.Configuration;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC.Modules
 {
@@ -42,6 +39,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC.Modules
                                  }
 
                                  var transport = endpointConfiguration.UseTransport<AzureServiceBusTransport>();
+                                 transport.ConnectionString(config.ServiceBusConnectionString);
                                  transport.PrefetchCount(20);
                                  builder.RegisterInstance(transport).As<TransportExtensions<AzureServiceBusTransport>>().SingleInstance();
                                  endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
