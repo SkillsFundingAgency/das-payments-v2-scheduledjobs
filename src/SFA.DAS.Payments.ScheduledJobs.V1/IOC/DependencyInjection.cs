@@ -51,7 +51,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
                         LevyAccountSchedule = configHelper.GetValue<string>("LevyAccountSchedule"),
                         LevyAccountValidationSchedule = configHelper.GetValue<string>("LevyAccountValidationSchedule"),
                         LogLevel = configHelper.GetValue<string>("LogLevel"),
-                        PaymentsConnectionString = configHelper.GetValue<string>("PaymentsConnectionString"),
                         PerviousAcademicYear = configHelper.GetValue<string>("PerviousAcademicYear"),
                         PreviousAcademicYearCollectionPeriod = configHelper.GetValue<string>("PreviousAcademicYearCollectionPeriod"),
                         RequiredPaymentAuditDataCleanUpQueue = configHelper.GetValue<string>("RequiredPaymentAuditDataCleanUpQueue"),
@@ -60,8 +59,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
                         Version = configHelper.GetValue<string>("Version"),
                         ApprenticeshipValidationSchedule = configHelper.GetValue<string>("ApprenticeshipValidationSchedule"),
                         AzureWebJobsStorage = configHelper.GetValue<string>("AzureWebJobsStorage")
-
-
                     }
                 };
             });
