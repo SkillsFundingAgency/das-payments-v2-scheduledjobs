@@ -20,5 +20,10 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Common
         {
             return items.Select((item, index) => new SqlParameter($"@DcJobId{index}", item.DcJobId)).ToList();
         }
+
+        public static bool IsNullOrEmpty<T>(this IList<T> list)
+        {
+            return list == null || list.Count == 0;
+        }
     }
 }

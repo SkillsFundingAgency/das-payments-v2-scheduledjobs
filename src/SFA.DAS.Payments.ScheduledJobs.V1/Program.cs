@@ -19,9 +19,11 @@ var host = new HostBuilder()
 
          services.AddAppsettingsConfiguration();
          services.AddScoppedServices();
+         services.AddSingletonServices();
          services.AddPaymentDatabaseContext(context.Configuration);
          services.AddCommitmentsDataContext(context.Configuration);
-
+         services.AddAccountApiConfiguration(context.Configuration);
+         services.AddApplicationLoggerSettings();
 
      }).Build();
 

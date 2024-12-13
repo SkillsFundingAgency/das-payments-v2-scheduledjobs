@@ -1,13 +1,24 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Configuration;
+using ESFA.DC.Logging.Config.Interfaces;
+using ESFA.DC.Logging.Config;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Application.Repositories;
+using SFA.DAS.Payments.Core.Configuration;
 using SFA.DAS.Payments.ScheduledJobs.V1.Configuration;
 using SFA.DAS.Payments.ScheduledJobs.V1.DataContext;
+using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
 using SFA.DAS.Payments.ScheduledJobs.V1.Services;
+using SFA.DAS.Payments.ScheduledJobs.V1.Validator;
+using ESFA.DC.Logging.Enums;
+using ESFA.DC.Logging.Interfaces;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
 {
@@ -89,10 +100,29 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
             services.AddScoped<ILevyAccountImportService, LevyAccountImportService>();
             services.AddScoped<IApprenticeshipDataService, ApprenticeshipDataService>();
             services.AddScoped<ITelemetry, ApplicationInsightsTelemetry>();
+            services.AddScoped<IAccountApiClient, AccountApiClient>();
+            services.AddScoped<IDasLevyAccountApiWrapper, DasLevyAccountApiWrapper>();
+            services.AddScoped<ILevyAccountValidationService, LevyAccountValidationService>();
+            services.AddScoped<IExecutionContext, ESFA.DC.Logging.ExecutionContext>();
+            
+            
+            
+            // Register FluentValidation validators
+            services.AddTransient<IValidator<LevyAccountsDto>, LevyAccountValidator>();
+            services.AddTransient<IValidator<CombinedLevyAccountsDto>, CombinedLevyAccountValidator>();
+
+
 
             services.AddScoped<IPaymentsDataContext, PaymentsDataContext>();
             services.AddScoped<ICommitmentsDataContext, CommitmentsDataContext>();
 
+            return services;
+        }
+
+        public static IServiceCollection AddSingletonServices(this IServiceCollection services)
+        {
+            services.AddSingleton<IConfigurationHelper, ConfigurationHelper>();
+            services.AddSingleton<IVersionInfo, VersionInfo>();
             return services;
         }
 
@@ -108,6 +138,53 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
                         errorNumbersToAdd: null);
                 });
             });
+            return services;
+        }
+
+        public static IServiceCollection AddAccountApiConfiguration(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton<IAccountApiConfiguration>(provider =>
+            {
+                var configHelper = provider.GetRequiredService<IConfiguration>();
+
+                return new AccountApiConfiguration
+                {
+                    ApiBaseUrl = configHelper.GetValue<string>("AccountApiBaseUrl"),
+                    ClientId = configHelper.GetValue<string>("AccountApiClientId"),
+                    ClientSecret = configHelper.GetValue<string>("AccountApiClientSecret"),
+                    IdentifierUri = configHelper.GetValue<string>("AccountApiIdentifierUri"),
+                    Tenant = configHelper.GetValue<string>("AccountApiTenant")
+                };
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection AddApplicationLoggerSettings(this IServiceCollection services)
+        {
+            services.AddSingleton<IApplicationLoggerSettings>(provider =>
+            {
+                var versionInfo = provider.GetRequiredService<IVersionInfo>();
+                var configHelper = provider.GetRequiredService<IConfigurationHelper>();
+
+                if (!Enum.TryParse(configHelper.GetSettingOrDefault("LogLevel", "Information"), out LogLevel logLevel))
+                {
+                    logLevel = LogLevel.Information;
+                }
+
+                return new ApplicationLoggerSettings
+                {
+                    ApplicationLoggerOutputSettingsCollection = new List<IApplicationLoggerOutputSettings>
+                    {
+                        new ConsoleApplicationLoggerOutputSettings
+                        {
+                            MinimumLogLevel = logLevel
+                        },
+                    },
+                    TaskKey = versionInfo.ServiceReleaseVersion
+                };
+            });
+
             return services;
         }
     }
