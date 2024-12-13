@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SFA.DAS.EAS.Account.Api.Client;
+﻿using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Model.Core.Entities;
@@ -20,7 +15,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
         public DasLevyAccountApiWrapper(IAccountApiClient accountApiClient
             , IPaymentLogger logger
-            ,IAppsettingsOptions settings)
+            , IAppsettingsOptions settings)
         {
             _accountApiClient = accountApiClient ?? throw new ArgumentNullException(nameof(accountApiClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

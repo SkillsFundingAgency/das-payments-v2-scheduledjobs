@@ -1,11 +1,11 @@
-﻿using System.Configuration;
+﻿using ESFA.DC.Logging.Config;
 using ESFA.DC.Logging.Config.Interfaces;
-using ESFA.DC.Logging.Config;
+using ESFA.DC.Logging.Enums;
+using ESFA.DC.Logging.Interfaces;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
@@ -17,8 +17,6 @@ using SFA.DAS.Payments.ScheduledJobs.V1.DataContext;
 using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
 using SFA.DAS.Payments.ScheduledJobs.V1.Services;
 using SFA.DAS.Payments.ScheduledJobs.V1.Validator;
-using ESFA.DC.Logging.Enums;
-using ESFA.DC.Logging.Interfaces;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
 {
@@ -104,9 +102,9 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
             services.AddScoped<IDasLevyAccountApiWrapper, DasLevyAccountApiWrapper>();
             services.AddScoped<ILevyAccountValidationService, LevyAccountValidationService>();
             services.AddScoped<IExecutionContext, ESFA.DC.Logging.ExecutionContext>();
-            
-            
-            
+
+
+
             // Register FluentValidation validators
             services.AddTransient<IValidator<LevyAccountsDto>, LevyAccountValidator>();
             services.AddTransient<IValidator<CombinedLevyAccountsDto>, CombinedLevyAccountValidator>();
