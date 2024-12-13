@@ -37,7 +37,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
                  { "LevyAccount", "Either Das or Payments levy account Data is invalid, Please check the logs" }
              }, null);
         }
-        
+
         private void RaiseCoreEmployerAccountReferenceDataEvents(CombinedLevyAccountsDto combinedDto)
         {
             telemetry.TrackEvent("EmployerAccountReferenceData.Comparison.LevyAccountCount", new Dictionary<string, double>
@@ -45,19 +45,19 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
                 { "das-LevyAccountCount", Convert.ToDouble(combinedDto.DasLevyAccountCount) },
                 { "payments-LevyAccountCount", Convert.ToDouble(combinedDto.PaymentsLevyAccountCount) },
             });
-        
+
             telemetry.TrackEvent("EmployerAccountReferenceData.Comparison.IsLevyPayerCount", new Dictionary<string, double>
              {
                  { "das-IsLevyPayerCount", Convert.ToDouble(combinedDto.DasIsLevyPayerCount) },
                  { "payments-IsLevyPayerCount", Convert.ToDouble(combinedDto.PaymentsIsLevyPayerCount) },
              });
-        
+
             telemetry.TrackEvent("EmployerAccountReferenceData.Comparison.TransferAllowanceTotal", new Dictionary<string, double>
             {
                 { "das-TransferAllowanceTotal", Convert.ToDouble(combinedDto.DasTransferAllowanceTotal) },
                 { "payments-TransferAllowanceTotal", Convert.ToDouble(combinedDto.PaymentsTransferAllowanceTotal) },
             });
-        
+
             telemetry.TrackEvent("EmployerAccountReferenceData.Comparison.LevyAccountBalanceTotal", new Dictionary<string, double>
             {
                 { "das-LevyAccountBalanceTotal", Convert.ToDouble(combinedDto.DasLevyAccountBalanceTotal) },

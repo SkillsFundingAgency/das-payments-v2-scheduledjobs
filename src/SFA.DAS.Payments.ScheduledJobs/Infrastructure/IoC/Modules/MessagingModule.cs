@@ -21,7 +21,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC.Modules
                                  var endpointConfiguration = new EndpointConfiguration(config.EndpointName);
 
                                  var logger = c.Resolve<MessagingLogger>();
-                                 
+
                                  endpointConfiguration.CustomDiagnosticsWriter(
                                      (diagnostics, ct) =>
                                      {
@@ -30,7 +30,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC.Modules
                                      });
 
                                  var conventions = endpointConfiguration.Conventions();
-                                 conventions.DefiningCommandsAs(type => ( type.Namespace?.StartsWith("SFA.DAS.Payments") ?? false ) && (bool) type.Namespace?.Contains(".Messages.Commands"));
+                                 conventions.DefiningCommandsAs(type => (type.Namespace?.StartsWith("SFA.DAS.Payments") ?? false) && (bool)type.Namespace?.Contains(".Messages.Commands"));
 
                                  if (!string.IsNullOrEmpty(config.DasNServiceBusLicenseKey))
                                  {

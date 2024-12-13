@@ -1,9 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable UnusedMember.Global
 

@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
 {

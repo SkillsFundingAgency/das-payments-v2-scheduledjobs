@@ -1,13 +1,13 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.FundingSource.Messages.Commands;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Functions.Worker;
 
 // ReSharper disable UnusedMember.Global
 

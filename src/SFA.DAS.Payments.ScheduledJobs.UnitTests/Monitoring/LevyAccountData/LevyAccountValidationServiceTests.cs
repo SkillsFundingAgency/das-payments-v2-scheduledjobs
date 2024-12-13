@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extras.Moq;
-using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
@@ -73,7 +72,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Monitoring.LevyAccountData
             {
                 Assert.Fail($"Exception thrown: {ex.Message}");
             }
-            
+
             telemetry.Verify(x => x.TrackEvent(It.Is<string>(s => s == "EmployerAccountReferenceData.Comparison.InvalidData"), It.IsAny<Dictionary<string, string>>(), null), Times.Once);
             telemetry.Verify(x => x.TrackEvent(It.IsAny<string>(), It.IsAny<Dictionary<string, double>>()), Times.Never);
         }
@@ -113,7 +112,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Monitoring.LevyAccountData
             VerifyCombinedTelemetryEvent("das-TransferAllowanceTotal");
             VerifyCombinedTelemetryEvent("das-LevyAccountBalanceTotal");
 
-            telemetry.Verify(x => x.TrackEvent(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>(), null), Times.Never);        
+            telemetry.Verify(x => x.TrackEvent(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>(), null), Times.Never);
         }
 
         [Test]
@@ -140,7 +139,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Monitoring.LevyAccountData
             VerifyIndividualTelemetryEvent("IsLevyPayerMismatch");
             VerifyIndividualTelemetryEvent("TransferAllowanceMismatch");
             VerifyIndividualTelemetryEvent("BalanceMismatch");
-            
+
             VerifyIndividualTelemetryEvent("LevyAccountId", 4);
         }
 

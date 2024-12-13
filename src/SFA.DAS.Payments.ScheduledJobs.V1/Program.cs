@@ -20,6 +20,7 @@ var host = new HostBuilder()
          services.AddAppsettingsConfiguration();
          services.AddScoppedServices();
          services.AddPaymentDatabaseContext(context.Configuration);
+         services.AddCommitmentsDataContext(context.Configuration);
 
 
      }).Build();

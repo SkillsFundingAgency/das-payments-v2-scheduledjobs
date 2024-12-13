@@ -1,13 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SFA.DAS.Payments.ScheduledJobs.V1.DataContext.Configuration;
+using SFA.DAS.Payments.ScheduledJobs.V1.Models;
 
-namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.ApprenticeshipData
+namespace SFA.DAS.Payments.ScheduledJobs.V1.DataContext
 {
-    public interface ICommitmentsDataContext
-    {
-        DbSet<ApprenticeshipModel> Apprenticeship { get; }
-        int SaveChanges();
-    }
-
     public class CommitmentsDataContext : DbContext, ICommitmentsDataContext
     {
         public CommitmentsDataContext(DbContextOptions<CommitmentsDataContext> options) : base(options)

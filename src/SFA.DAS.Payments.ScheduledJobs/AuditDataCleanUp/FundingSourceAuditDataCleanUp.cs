@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Newtonsoft.Json;
-using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 // ReSharper disable UnusedMember.Global
 

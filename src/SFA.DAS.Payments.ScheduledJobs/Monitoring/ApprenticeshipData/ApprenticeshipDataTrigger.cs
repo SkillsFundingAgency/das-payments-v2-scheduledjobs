@@ -1,10 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
-using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.Payments.Application.Infrastructure.Logging;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.ApprenticeshipData
 {

@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.Core.Configuration;
 using SFA.DAS.Payments.ScheduledJobs.AuditDataCleanUp;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.Configuration;

@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Model.Core.Entities;
+using SFA.DAS.Payments.ScheduledJobs.V1.DataContext;
+using SFA.DAS.Payments.ScheduledJobs.V1.Enums;
 
-namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.ApprenticeshipData
+namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 {
-    public interface IApprenticeshipsDataService
-    {
-        Task ProcessComparison();
-    }
-
-    public class ApprenticeshipDataService : IApprenticeshipsDataService
+    public class ApprenticeshipDataService : IApprenticeshipDataService
     {
         private const string DasApproved = "DasApproved";
         private const string DasStopped = "DasStopped";
@@ -24,49 +17,49 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.ApprenticeshipData
         private const string PaymentsPaused = "PaymentsPaused";
         private const string ApprovalsReferenceDataComparisonEvent = "ApprovalsReferenceDataComparisonEvent";
 
-        private readonly IPaymentsDataContextFactory paymentsDataContextFactory;
-        private readonly ICommitmentsDataContextFactory commitmentsDataContextFactory;
-        private readonly ITelemetry telemetry;
+        private readonly ICommitmentsDataContext _commitmentsDataContext;
+        private readonly ITelemetry _telemetry;
+        private readonly IPaymentsDataContext _paymentDataContext;
 
-        private IPaymentsDataContext PaymentsDataContext => paymentsDataContextFactory.Create();
-        private ICommitmentsDataContext CommitmentsDataContext => commitmentsDataContextFactory.Create();
 
-        public ApprenticeshipDataService(IPaymentsDataContextFactory paymentsDataContextFactory, ICommitmentsDataContextFactory commitmentsDataContextFactory, ITelemetry telemetry)
+        public ApprenticeshipDataService(ITelemetry telemetry
+            , IPaymentsDataContext dataContext,
+            ICommitmentsDataContext commitmentsDataContext)
         {
-            this.paymentsDataContextFactory = paymentsDataContextFactory;
-            this.commitmentsDataContextFactory = commitmentsDataContextFactory;
-            this.telemetry = telemetry;
+            _telemetry = telemetry;
+            _paymentDataContext = dataContext;
+            _commitmentsDataContext = commitmentsDataContext;
         }
 
         public async Task ProcessComparison()
         {
             var pastThirtyDays = DateTime.UtcNow.AddDays(-30).Date;
 
-            var commitmentsApprovedTask = CommitmentsDataContext.Apprenticeship.Include(x => x.Commitment)
+            var commitmentsApprovedTask = _commitmentsDataContext.Apprenticeship.Include(x => x.Commitment)
                 .CountAsync(commitmentsApprenticeship =>
                     commitmentsApprenticeship.Commitment.EmployerAndProviderApprovedOn > pastThirtyDays
                     && (commitmentsApprenticeship.Commitment.Approvals == 3 || commitmentsApprenticeship.Commitment.Approvals == 7));
 
-            var commitmentsStoppedTask = CommitmentsDataContext.Apprenticeship
+            var commitmentsStoppedTask = _commitmentsDataContext.Apprenticeship
                 .CountAsync(commitmentsApprenticeship =>
                     commitmentsApprenticeship.StopDate > pastThirtyDays
                     && commitmentsApprenticeship.PaymentStatus == PaymentStatus.Withdrawn);
 
-            var commitmentsPausedTask = CommitmentsDataContext.Apprenticeship
+            var commitmentsPausedTask = _commitmentsDataContext.Apprenticeship
                 .CountAsync(commitmentsApprenticeship =>
                     commitmentsApprenticeship.IsApproved
                     && commitmentsApprenticeship.PauseDate > pastThirtyDays
                     && commitmentsApprenticeship.PaymentStatus == PaymentStatus.Paused);
 
-            var paymentsApprovedTask = PaymentsDataContext.Apprenticeship
+            var paymentsApprovedTask = _paymentDataContext.Apprenticeship
                 .CountAsync(paymentsApprenticeship => paymentsApprenticeship.CreationDate > pastThirtyDays);
 
-            var paymentsStoppedTask = PaymentsDataContext.Apprenticeship
+            var paymentsStoppedTask = _paymentDataContext.Apprenticeship
                 .CountAsync(paymentsApprenticeship =>
                     paymentsApprenticeship.Status == ApprenticeshipStatus.Stopped
                     && paymentsApprenticeship.StopDate > pastThirtyDays);
 
-            var paymentsPausedTask = PaymentsDataContext.Apprenticeship.Include(x => x.ApprenticeshipPauses)
+            var paymentsPausedTask = _paymentDataContext.Apprenticeship.Include(x => x.ApprenticeshipPauses)
                 .CountAsync(paymentsApprenticeship =>
                     paymentsApprenticeship.Status == ApprenticeshipStatus.Paused
                     && paymentsApprenticeship.ApprenticeshipPauses.Any(pause =>
@@ -83,7 +76,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.ApprenticeshipData
             var paymentsStoppedCount = paymentsStoppedTask.Result;
             var paymentsPausedCount = paymentsPausedTask.Result;
 
-            telemetry.TrackEvent(ApprovalsReferenceDataComparisonEvent, new Dictionary<string, double>
+            _telemetry.TrackEvent(ApprovalsReferenceDataComparisonEvent, new Dictionary<string, double>
             {
                 { DasApproved, commitmentsApprovedCount },
                 { DasStopped, commitmentsStoppedCount },

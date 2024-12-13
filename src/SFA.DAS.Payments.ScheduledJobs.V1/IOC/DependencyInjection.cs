@@ -2,9 +2,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
+using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.ScheduledJobs.V1.Configuration;
+using SFA.DAS.Payments.ScheduledJobs.V1.DataContext;
 using SFA.DAS.Payments.ScheduledJobs.V1.Services;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
@@ -87,9 +89,28 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
             services.AddScoped<IAuditDataCleanUpService, AuditDataCleanUpService>();
             services.AddScoped<IPaymentLogger, PaymentLogger>();
             services.AddScoped<IEndpointInstanceFactory, EndpointInstanceFactory>();
-            services.AddScoped<IPaymentsDataContext, PaymentsDataContext>();
             services.AddScoped<ILevyAccountImportService, LevyAccountImportService>();
+            services.AddScoped<IApprenticeshipDataService, ApprenticeshipDataService>();
+            services.AddScoped<ITelemetry, ApplicationInsightsTelemetry>();
 
+            services.AddScoped<IPaymentsDataContext, PaymentsDataContext>();
+            services.AddScoped<ICommitmentsDataContext, CommitmentsDataContext>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddCommitmentsDataContext(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<CommitmentsDataContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("CommitmentsConnectionString"), sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null);
+                });
+            });
             return services;
         }
     }
