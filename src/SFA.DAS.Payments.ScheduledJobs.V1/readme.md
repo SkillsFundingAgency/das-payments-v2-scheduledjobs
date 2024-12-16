@@ -1,5 +1,9 @@
 # SFA.DAS.Payments.ScheduledJobs.V1
 
+
+## Troubleshoot steps
+- npm install -g azure-functions-core-tools@4 --unsafe-perm true
+- func start --verbose
 ## Overview
 
 The `SFA.DAS.Payments.ScheduledJobs.V1` project is an Azure Function application designed to handle scheduled jobs related to the SFA DAS Payments system. This application is responsible for various background tasks such as data cleanup, importing levy account data, and other scheduled maintenance activities.

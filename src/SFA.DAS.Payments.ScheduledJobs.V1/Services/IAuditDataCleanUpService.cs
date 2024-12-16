@@ -8,6 +8,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
         Task EarningEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch);
         Task FundingSourceEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch);
         Task RequiredPaymentEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch);
-        Task TriggerAuditDataCleanup();
+        Task<List<SubmissionJobsToBeDeletedBatch>> TriggerAuditDataCleanup();
     }
 }

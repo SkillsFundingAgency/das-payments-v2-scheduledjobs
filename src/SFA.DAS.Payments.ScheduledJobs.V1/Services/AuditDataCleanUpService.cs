@@ -5,6 +5,7 @@ using NServiceBus;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Core;
+using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ScheduledJobs.V1.Common;
 using SFA.DAS.Payments.ScheduledJobs.V1.Configuration;
 using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
@@ -29,7 +30,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
             _settings = settings;
         }
 
-        public async Task TriggerAuditDataCleanup()
+        public async Task<List<SubmissionJobsToBeDeletedBatch>> TriggerAuditDataCleanup()
         {
             IEnumerable<SubmissionJobsToBeDeletedBatch> previousSubmissionJobsToBeDeletedBatches = new List<SubmissionJobsToBeDeletedBatch>();
 
@@ -43,19 +44,35 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
             var submissionJobsToBeDeletedBatches = previousSubmissionJobsToBeDeletedBatches.Union(currentSubmissionJobsToBeDeletedBatches);
             var submissionJobsToBeDeletedBatchesList = submissionJobsToBeDeletedBatches.ToList();
 
-
-            var endpointInstance = await endpointInstanceFactory.GetEndpointInstance().ConfigureAwait(false);
-
-            _logger.LogInformation($"Triggering Audit Data Cleanup for {submissionJobsToBeDeletedBatchesList.Count} submission job batches. " +
-                                  $"DCJobIds: {string.Join(",", submissionJobsToBeDeletedBatchesList.SelectMany(x => x.JobsToBeDeleted.Select(y => y.DcJobId)))}");
-
-            foreach (var batch in submissionJobsToBeDeletedBatchesList)
+            if (submissionJobsToBeDeletedBatchesList.Count == 0)
             {
-                await endpointInstance.Send(_settings.Values.EarningAuditDataCleanUpQueue, batch).ConfigureAwait(false);
-                await endpointInstance.Send(_settings.Values.DataLockAuditDataCleanUpQueue, batch).ConfigureAwait(false);
-                await endpointInstance.Send(_settings.Values.FundingSourceAuditDataCleanUpQueue, batch).ConfigureAwait(false);
-                await endpointInstance.Send(_settings.Values.RequiredPaymentAuditDataCleanUpQueue, batch).ConfigureAwait(false);
+                if (submissionJobsToBeDeletedBatchesList.Count == 0)
+                {
+                    submissionJobsToBeDeletedBatchesList.Add(new SubmissionJobsToBeDeletedBatch
+                    {
+                        JobsToBeDeleted = new[]
+                        {
+                            new SubmissionJobsToBeDeletedModel { DcJobId = 123 },
+                            new SubmissionJobsToBeDeletedModel { DcJobId = 345 }
+                        }
+                    });
+                }
             }
+
+            //var endpointInstance = await endpointInstanceFactory.GetEndpointInstance().ConfigureAwait(false);
+
+            //_logger.LogInformation($"Triggering Audit Data Cleanup for {submissionJobsToBeDeletedBatchesList.Count} submission job batches. " +
+            //                      $"DCJobIds: {string.Join(",", submissionJobsToBeDeletedBatchesList.SelectMany(x => x.JobsToBeDeleted.Select(y => y.DcJobId)))}");
+
+
+            return submissionJobsToBeDeletedBatchesList;
+            //foreach (var batch in submissionJobsToBeDeletedBatchesList)
+            //{
+            //    await endpointInstance.Send(_settings.Values.EarningAuditDataCleanUpQueue, batch).ConfigureAwait(false);
+            //    await endpointInstance.Send(_settings.Values.DataLockAuditDataCleanUpQueue, batch).ConfigureAwait(false);
+            //    await endpointInstance.Send(_settings.Values.FundingSourceAuditDataCleanUpQueue, batch).ConfigureAwait(false);
+            //    await endpointInstance.Send(_settings.Values.RequiredPaymentAuditDataCleanUpQueue, batch).ConfigureAwait(false);
+            //}
         }
 
         private async Task SplitBatchAndEnqueueMessages(SubmissionJobsToBeDeletedBatch batch, string queueName)
