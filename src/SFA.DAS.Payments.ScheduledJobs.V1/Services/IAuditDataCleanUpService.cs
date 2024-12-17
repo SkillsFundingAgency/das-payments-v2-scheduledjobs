@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
+﻿using Microsoft.Azure.Functions.Worker.Http;
+using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
 using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.Services

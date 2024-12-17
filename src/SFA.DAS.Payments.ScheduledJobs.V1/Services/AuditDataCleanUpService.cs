@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Azure;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
@@ -53,8 +55,8 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
                     {
                         JobsToBeDeleted = new[]
                         {
-                            new SubmissionJobsToBeDeletedModel { DcJobId = 123 },
-                            new SubmissionJobsToBeDeletedModel { DcJobId = 345 }
+                            new SubmissionJobsToBeDeletedModel { DcJobId = 11 },
+                            new SubmissionJobsToBeDeletedModel { DcJobId = 22 }
                         }
                     });
                 }
@@ -69,16 +71,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
             {
                 return new AuditDataCleanUpBinding()
                 {
-                    DataLockAuditDataCleanUpJobsToBeDeleted = JobsToBeDeleted,
                     EarningAuditDataCleanUpJobsToBeDeleted = JobsToBeDeleted,
+                    DataLockAuditDataCleanUpJobsToBeDeleted = JobsToBeDeleted,
                     FundingSourceAuditDataCleanUpJobsToBeDeleted = JobsToBeDeleted,
                     RequiredPaymentAuditDataCleanUpJobsToBeDeleted = JobsToBeDeleted
                 };
             }
-            else
-            {
-                return null;
-            }
+            return null;
 
         }
 
