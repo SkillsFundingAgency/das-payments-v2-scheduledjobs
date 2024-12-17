@@ -9,7 +9,6 @@
             "enableLiveMetricsFilters": true
         }
     },
-    // TODO: The following section is used to configure the Azure Functions runtime. This configuration is not required for all functions. this configuration added to skip the corporate policy.
     "extensions": {
         "serviceBus": {
             "transportType": "amqpWebSockets"

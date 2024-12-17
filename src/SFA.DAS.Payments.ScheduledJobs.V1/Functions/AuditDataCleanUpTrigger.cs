@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Routing;
+using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
 using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
 using SFA.DAS.Payments.ScheduledJobs.V1.Services;
 
@@ -19,36 +20,23 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
             _logger = logger;
         }
 
-        [Function("AuditDataCleanUpTrigger")]
-        public async Task<SubmissionJobsToBeDeletedBatch> AuditDataCleanUp([TimerTrigger("%AuditDataCleanUpSchedule%")] TimerInfo myTimer)
-        {
-            _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+        //[Function("AuditDataCleanUpTrigger")]
+        //public async Task AuditDataCleanUp([TimerTrigger("%AuditDataCleanUpSchedule%")] TimerInfo myTimer)
+        //{
+        //    _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
-            if (myTimer.ScheduleStatus is not null)
-            {
-                var ListSubmissionJobsToBeDeletedBatch = await _auditDataCleanUpService.TriggerAuditDataCleanup();
-                var JobsToBeDeleted = new SubmissionJobsToBeDeletedBatch()
-                {
-                    JobsToBeDeleted = ListSubmissionJobsToBeDeletedBatch.SelectMany(batch => batch.JobsToBeDeleted).ToArray()
-                };
+        //    if (myTimer.ScheduleStatus is not null)
+        //    {
+        //        await _auditDataCleanUpService.TriggerAuditDataCleanup();
+        //    }
 
-                return JobsToBeDeleted;
-            }
-
-            return null;
-        }
+        //}
 
         [Function("HttpTriggerAuditDataCleanup")]
-        public async Task<SubmissionJobsToBeDeletedBatch> HttpTriggerAuditDataCleanup(
+        public async Task<AuditDataCleanUpBinding> HttpTriggerAuditDataCleanup(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest httpRequest)
         {
-            var ListSubmissionJobsToBeDeletedBatch = await _auditDataCleanUpService.TriggerAuditDataCleanup();
-            var JobsToBeDeleted = new SubmissionJobsToBeDeletedBatch()
-            {
-                JobsToBeDeleted = ListSubmissionJobsToBeDeletedBatch.SelectMany(batch => batch.JobsToBeDeleted).ToArray()
-            };
-
-            return JobsToBeDeleted;
+            return await _auditDataCleanUpService.TriggerAuditDataCleanup();
         }
     }
 }

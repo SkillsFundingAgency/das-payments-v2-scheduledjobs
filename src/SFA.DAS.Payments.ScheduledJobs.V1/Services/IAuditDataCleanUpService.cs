@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
+﻿using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
+using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 {
@@ -8,6 +9,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
         Task EarningEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch);
         Task FundingSourceEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch);
         Task RequiredPaymentEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch);
-        Task<List<SubmissionJobsToBeDeletedBatch>> TriggerAuditDataCleanup();
+        Task<AuditDataCleanUpBinding> TriggerAuditDataCleanup();
     }
 }
