@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Http;
+using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using NServiceBus.Routing;
 using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
-using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
 using SFA.DAS.Payments.ScheduledJobs.V1.Services;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
@@ -28,7 +26,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
 
             if (myTimer.ScheduleStatus is not null)
             {
-                await _auditDataCleanUpService.TriggerAuditDataCleanup();
+                await _auditDataCleanUpService.TriggerAuditDataCleanUp();
             }
 
         }
@@ -38,20 +36,32 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "TriggerAuditDataCleanUp")] HttpRequestData httpRequest)
         {
             var response = httpRequest.CreateResponse();
-            var result = await _auditDataCleanUpService.TriggerAuditDataCleanup();
 
-            if (result != null)
+            try
             {
-                response.StatusCode = System.Net.HttpStatusCode.OK;
-                await response.WriteStringAsync("Request processed successfully");
-            }
-            else
-            {
-                response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-                await response.WriteStringAsync("Request processing failed");
-            }
+                var result = await _auditDataCleanUpService.TriggerAuditDataCleanUp();
 
-            return result;
+                if (result != null)
+                {
+                    response.StatusCode = HttpStatusCode.OK;
+                    await response.WriteStringAsync("Request processed successfully");
+                }
+                else
+                {
+                    response.StatusCode = HttpStatusCode.BadRequest;
+                    await response.WriteStringAsync("No DCJobIds found for processing.");
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = $"An error occurred while processing the request. {ex.Message}";
+                _logger.LogError(errorMessage);
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                await response.WriteStringAsync(errorMessage);
+                return null;
+            }
         }
     }
 }

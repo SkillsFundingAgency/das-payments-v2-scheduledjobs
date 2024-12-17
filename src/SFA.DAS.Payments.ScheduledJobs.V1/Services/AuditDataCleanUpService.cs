@@ -1,6 +1,4 @@
-﻿using Azure;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
@@ -17,8 +15,8 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 {
     public class AuditDataCleanUpService : IAuditDataCleanUpService
     {
-        private readonly IPaymentsDataContext dataContext;
-        private readonly IEndpointInstanceFactory endpointInstanceFactory;
+        private readonly IPaymentsDataContext _PaymentDataContext;
+        private readonly IEndpointInstanceFactory _endpointInstanceFactory;
         private readonly ILogger<AuditDataCleanUpService> _logger;
         private readonly IAppsettingsOptions _settings;
 
@@ -27,13 +25,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
             , ILogger<AuditDataCleanUpService> paymentLogger
             , IAppsettingsOptions settings)
         {
-            this.dataContext = dataContext;
-            this.endpointInstanceFactory = endpointInstanceFactory;
-            this._logger = paymentLogger;
+            _PaymentDataContext = dataContext;
+            _endpointInstanceFactory = endpointInstanceFactory;
+            _logger = paymentLogger;
             _settings = settings;
         }
 
-        public async Task<AuditDataCleanUpBinding> TriggerAuditDataCleanup()
+        public async Task<AuditDataCleanUpBinding> TriggerAuditDataCleanUp()
         {
             IEnumerable<SubmissionJobsToBeDeletedBatch> previousSubmissionJobsToBeDeletedBatches = new List<SubmissionJobsToBeDeletedBatch>();
 
@@ -55,8 +53,8 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
                     {
                         JobsToBeDeleted = new[]
                         {
-                            new SubmissionJobsToBeDeletedModel { DcJobId = 11 },
-                            new SubmissionJobsToBeDeletedModel { DcJobId = 22 }
+                            new SubmissionJobsToBeDeletedModel { DcJobId = 33 },
+                            new SubmissionJobsToBeDeletedModel { DcJobId = 44 }
                         }
                     });
                 }
@@ -83,7 +81,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
         private async Task SplitBatchAndEnqueueMessages(SubmissionJobsToBeDeletedBatch batch, string queueName)
         {
-            var endpointInstance = await endpointInstanceFactory.GetEndpointInstance().ConfigureAwait(false);
+            var endpointInstance = await _endpointInstanceFactory.GetEndpointInstance().ConfigureAwait(false);
 
             foreach (var jobsToBeDeletedModel in batch.JobsToBeDeleted)
             {
@@ -149,7 +147,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
         private async Task DeleteEarningEventData(IList<SqlParameter> sqlParameters, string sqlParamName, string paramValues)
         {
-            var earningEventPeriodCount = await dataContext.Database.ExecuteSqlRawAsync(
+            var earningEventPeriodCount = await _PaymentDataContext.Database.ExecuteSqlRawAsync(
                 $@"DELETE Payments2.EarningEventPeriod 
                        FROM Payments2.EarningEventPeriod AS EEP 
                            INNER JOIN Payments2.EarningEvent AS EE ON EEP.EarningEventId = EE.EventId 
@@ -158,7 +156,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
             _logger.LogInformation($"DELETED {earningEventPeriodCount} earningEventPeriods for JobIds {paramValues}");
 
-            var earningEventPriceEpisodeCount = await dataContext.Database.ExecuteSqlRawAsync(
+            var earningEventPriceEpisodeCount = await _PaymentDataContext.Database.ExecuteSqlRawAsync(
                 $@"DELETE Payments2.EarningEventPriceEpisode 
                        FROM Payments2.EarningEventPriceEpisode AS EEPE 
                           INNER JOIN Payments2.EarningEvent AS EE ON EEPE.EarningEventId = EE.EventId 
@@ -167,7 +165,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
             _logger.LogInformation($"DELETED {earningEventPriceEpisodeCount} earningEventPriceEpisodes for JobIds {paramValues}");
 
-            var earningEventCount = await dataContext.Database.ExecuteSqlRawAsync(
+            var earningEventCount = await _PaymentDataContext.Database.ExecuteSqlRawAsync(
                 $"DELETE Payments2.EarningEvent WHERE JobId IN ({sqlParamName})",
                 sqlParameters);
 
@@ -176,7 +174,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
         private async Task DeleteFundingSourceEvent(IList<SqlParameter> sqlParameters, string sqlParamName, string paramValues)
         {
-            var fundingSourceEventCount = await dataContext.Database.ExecuteSqlRawAsync(
+            var fundingSourceEventCount = await _PaymentDataContext.Database.ExecuteSqlRawAsync(
                 $"DELETE Payments2.FundingSourceEvent WHERE JobId IN ({sqlParamName})",
                 sqlParameters);
 
@@ -185,7 +183,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
         private async Task DeleteRequiredPaymentEvent(IList<SqlParameter> sqlParameters, string sqlParamName, string paramValues)
         {
-            var requiredPaymentEventCount = await dataContext.Database.ExecuteSqlRawAsync(
+            var requiredPaymentEventCount = await _PaymentDataContext.Database.ExecuteSqlRawAsync(
                 $"DELETE Payments2.RequiredPaymentEvent WHERE JobId IN ({sqlParamName})",
                 sqlParameters);
 
@@ -194,7 +192,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
         private async Task DeleteDataLockEvent(IList<SqlParameter> sqlParameters, string sqlParamName, string paramValues)
         {
-            var dataLockEventNonPayablePeriodFailuresCount = await dataContext.Database.ExecuteSqlRawAsync(
+            var dataLockEventNonPayablePeriodFailuresCount = await _PaymentDataContext.Database.ExecuteSqlRawAsync(
                 $@"DELETE Payments2.DataLockEventNonPayablePeriodFailures 
                        FROM Payments2.DataLockEventNonPayablePeriodFailures AS DLENPPF 
                            INNER JOIN Payments2.DataLockEventNonPayablePeriod AS DLENPP ON DLENPPF.DataLockEventNonPayablePeriodId = DLENPP.DataLockEventNonPayablePeriodId 
@@ -204,7 +202,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
             _logger.LogInformation($"DELETED {dataLockEventNonPayablePeriodFailuresCount} DataLockEventNonPayablePeriodFailures for JobIds {paramValues}");
 
-            var dataLockEventNonPayablePeriodCount = await dataContext.Database.ExecuteSqlRawAsync(
+            var dataLockEventNonPayablePeriodCount = await _PaymentDataContext.Database.ExecuteSqlRawAsync(
                 $@"DELETE Payments2.DataLockEventNonPayablePeriod 
                        FROM Payments2.DataLockEventNonPayablePeriod AS DLENPP
                            INNER JOIN Payments2.DataLockEvent AS DL ON DLENPP.DataLockEventId = DL.EventId
@@ -213,7 +211,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
             _logger.LogInformation($"DELETED {dataLockEventNonPayablePeriodCount} DataLockEventNonPayablePeriods for JobIds {paramValues}");
 
-            var dataLockEventPayablePeriodCount = await dataContext.Database.ExecuteSqlRawAsync(
+            var dataLockEventPayablePeriodCount = await _PaymentDataContext.Database.ExecuteSqlRawAsync(
                 $@"DELETE Payments2.DataLockEventPayablePeriod 
                        FROM Payments2.DataLockEventPayablePeriod AS DLEPP
                            INNER JOIN Payments2.DataLockEvent AS DL ON DLEPP.DataLockEventId = DL.EventId
@@ -222,7 +220,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
             _logger.LogInformation($"DELETED {dataLockEventPayablePeriodCount} DataLockEventPayablePeriods for JobIds {paramValues}");
 
-            var dataLockEventPriceEpisodeCount = await dataContext.Database.ExecuteSqlRawAsync(
+            var dataLockEventPriceEpisodeCount = await _PaymentDataContext.Database.ExecuteSqlRawAsync(
                 $@"DELETE Payments2.DataLockEventPriceEpisode 
                        FROM Payments2.DataLockEventPriceEpisode AS DLEPP
                           INNER JOIN Payments2.DataLockEvent AS DL ON DLEPP.DataLockEventId = DL.EventId
@@ -231,7 +229,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
             _logger.LogInformation($"DELETED {dataLockEventPriceEpisodeCount} DataLockEventPriceEpisodes for JobIds {paramValues}");
 
-            var dataLockEventCount = await dataContext.Database.ExecuteSqlRawAsync(
+            var dataLockEventCount = await _PaymentDataContext.Database.ExecuteSqlRawAsync(
                 $"DELETE Payments2.DataLockEvent WHERE JobId IN ({sqlParamName})",
                 sqlParameters);
 
@@ -267,7 +265,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
                 SELECT JobId AS DcJobId FROM #JobDataToBeDeleted";
 
-            return (await dataContext.SubmissionJobsToBeDeleted
+            return (await _PaymentDataContext.SubmissionJobsToBeDeleted
                     .FromSqlRaw(selectJobsToBeDeleted,
                         new SqlParameter("collectionPeriod", collectionPeriod),
                         new SqlParameter("academicYear", academicYear))
