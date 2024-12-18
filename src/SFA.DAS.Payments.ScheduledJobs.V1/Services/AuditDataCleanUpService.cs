@@ -1,7 +1,4 @@
-﻿
-
-
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
@@ -93,6 +90,25 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
             return null;
 
         }
+        public async Task EarningEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
+        {
+            await AuditDataCleanUp(DeleteEarningEventData, batch, _settings.Values.EarningAuditDataCleanUpQueue);
+        }
+
+        public async Task FundingSourceEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
+        {
+            await AuditDataCleanUp(DeleteFundingSourceEvent, batch, _settings.Values.FundingSourceAuditDataCleanUpQueue);
+        }
+
+        public async Task RequiredPaymentEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
+        {
+            await AuditDataCleanUp(DeleteRequiredPaymentEvent, batch, _settings.Values.RequiredPaymentAuditDataCleanUpQueue);
+        }
+
+        public async Task DataLockEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
+        {
+            await AuditDataCleanUp(DeleteDataLockEvent, batch, _settings.Values.DataLockAuditDataCleanUpQueue);
+        }
 
         private async Task SplitBatchAndEnqueueMessages(SubmissionJobsToBeDeletedBatch batch, string queueName)
         {
@@ -138,26 +154,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
                     await SplitBatchAndEnqueueMessages(batch, queueName);
                 }
             }
-        }
-
-        public async Task EarningEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
-        {
-            await AuditDataCleanUp(DeleteEarningEventData, batch, _settings.Values.EarningAuditDataCleanUpQueue);
-        }
-
-        public async Task FundingSourceEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
-        {
-            await AuditDataCleanUp(DeleteFundingSourceEvent, batch, _settings.Values.FundingSourceAuditDataCleanUpQueue);
-        }
-
-        public async Task RequiredPaymentEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
-        {
-            await AuditDataCleanUp(DeleteRequiredPaymentEvent, batch, _settings.Values.RequiredPaymentAuditDataCleanUpQueue);
-        }
-
-        public async Task DataLockEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
-        {
-            await AuditDataCleanUp(DeleteDataLockEvent, batch, _settings.Values.DataLockAuditDataCleanUpQueue);
         }
 
         private async Task DeleteEarningEventData(IList<SqlParameter> sqlParameters, string sqlParamName, string paramValues)
