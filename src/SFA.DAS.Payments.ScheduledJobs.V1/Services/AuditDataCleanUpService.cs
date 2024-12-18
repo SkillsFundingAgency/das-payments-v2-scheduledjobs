@@ -1,6 +1,10 @@
-﻿using Microsoft.Data.SqlClient;
+﻿
+
+
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using NServiceBus;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Application.Repositories;
@@ -67,12 +71,24 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
             if (JobsToBeDeleted.Count() > 0)
             {
-                return new AuditDataCleanUpBinding()
+                return new AuditDataCleanUpBinding
                 {
-                    EarningAuditDataCleanUpJobsToBeDeleted = JobsToBeDeleted,
-                    DataLockAuditDataCleanUpJobsToBeDeleted = JobsToBeDeleted,
-                    FundingSourceAuditDataCleanUpJobsToBeDeleted = JobsToBeDeleted,
-                    RequiredPaymentAuditDataCleanUpJobsToBeDeleted = JobsToBeDeleted
+                    DataLock = new DataLockAuditDataCleanUpBinding
+                    {
+                        JobsToBeDeleted = JobsToBeDeleted
+                    },
+                    EarningAudit = new EarningAuditDataCleanUpBinding
+                    {
+                        JobsToBeDeleted = JobsToBeDeleted
+                    },
+                    FundingSource = new FundingSourceAuditDataCleanUpBinding
+                    {
+                        JobsToBeDeleted = JobsToBeDeleted
+                    },
+                    RequiredPayments = new RequiredPaymentAuditDataCleanUpBinding
+                    {
+                        JobsToBeDeleted = JobsToBeDeleted
+                    }
                 };
             }
             return null;

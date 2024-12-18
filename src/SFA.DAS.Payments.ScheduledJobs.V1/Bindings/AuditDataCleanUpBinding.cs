@@ -5,17 +5,16 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Bindings
 {
     public class AuditDataCleanUpBinding
     {
-
         [ServiceBusOutput("%DataLockAuditDataCleanUpQueue%", Connection = "ServiceBusConnectionString")]
-        public SubmissionJobsToBeDeletedModel[] DataLockAuditDataCleanUpJobsToBeDeleted { get; set; }
+        public DataLockAuditDataCleanUpBinding DataLock { get; set; }
 
         [ServiceBusOutput("%EarningAuditDataCleanUpQueue%", Connection = "ServiceBusConnectionString")]
-        public SubmissionJobsToBeDeletedModel[] EarningAuditDataCleanUpJobsToBeDeleted { get; set; }
+        public EarningAuditDataCleanUpBinding EarningAudit { get; set; }
 
         [ServiceBusOutput("%FundingSourceAuditDataCleanUpQueue%", Connection = "ServiceBusConnectionString")]
-        public SubmissionJobsToBeDeletedModel[] FundingSourceAuditDataCleanUpJobsToBeDeleted { get; set; }
+        public FundingSourceAuditDataCleanUpBinding FundingSource { get; set; }
 
         [ServiceBusOutput("%RequiredPaymentAuditDataCleanUpQueue%", Connection = "ServiceBusConnectionString")]
-        public SubmissionJobsToBeDeletedModel[] RequiredPaymentAuditDataCleanUpJobsToBeDeleted { get; set; }
+        public RequiredPaymentAuditDataCleanUpBinding RequiredPayments { get; set; }
     }
 }
