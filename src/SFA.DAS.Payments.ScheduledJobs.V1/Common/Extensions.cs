@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿
+using Microsoft.Data.SqlClient;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
 
