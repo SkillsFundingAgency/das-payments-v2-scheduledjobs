@@ -23,7 +23,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
             ServiceBusReceivedMessage message,
             ServiceBusMessageActions messageActions)
         {
-            var batch = JsonConvert.DeserializeObject<SubmissionJobsToBeDeletedBatch>(message.Subject);
+            var batch = JsonConvert.DeserializeObject<SubmissionJobsToBeDeletedBatch>(message.Body.ToString());
 
             await _auditDataCleanUpService.RequiredPaymentEventAuditDataCleanUp(batch);
         }
