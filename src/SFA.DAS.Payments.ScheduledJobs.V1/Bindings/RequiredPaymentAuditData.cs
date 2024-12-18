@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.Bindings
 {
-    public class FundingSourceAuditDataCleanUpBinding
+    public class RequiredPaymentAuditData
     {
         public SubmissionJobsToBeDeletedModel[] JobsToBeDeleted { get; set; }
     }

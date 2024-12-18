@@ -72,19 +72,19 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
             {
                 return new AuditDataCleanUpBinding
                 {
-                    DataLock = new DataLockAuditDataCleanUpBinding
+                    DataLock = new DataLockAuditData
                     {
                         JobsToBeDeleted = JobsToBeDeleted
                     },
-                    EarningAudit = new EarningAuditDataCleanUpBinding
+                    EarningAudit = new EarningAuditData
                     {
                         JobsToBeDeleted = JobsToBeDeleted
                     },
-                    FundingSource = new FundingSourceAuditDataCleanUpBinding
+                    FundingSource = new FundingSourceAuditData
                     {
                         JobsToBeDeleted = JobsToBeDeleted
                     },
-                    RequiredPayments = new RequiredPaymentAuditDataCleanUpBinding
+                    RequiredPayments = new RequiredPaymentAuditData
                     {
                         JobsToBeDeleted = JobsToBeDeleted
                     }
