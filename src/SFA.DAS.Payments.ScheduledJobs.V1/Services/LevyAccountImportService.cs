@@ -1,38 +1,23 @@
 ﻿using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.FundingSource.Messages.Commands;
-using SFA.DAS.Payments.ScheduledJobs.V1.Configuration;
+using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 {
     public class LevyAccountImportService : ILevyAccountImportService
     {
-        private readonly IAppsettingsOptions _settings;
         private ILogger<LevyAccountImportService> _logger;
-        private readonly IEndpointInstanceFactory _endpointInstanceFactory;
-        public LevyAccountImportService(IAppsettingsOptions settings
-            , ILogger<LevyAccountImportService> logger
-            , IEndpointInstanceFactory endpointInstanceFactory)
+        public LevyAccountImportService(ILogger<LevyAccountImportService> logger)
         {
-            _settings = settings;
             _logger = logger;
-            this._endpointInstanceFactory = endpointInstanceFactory;
         }
 
-        public async Task RunLevyAccountImport()
+        public LevyAccountImportBinding RunLevyAccountImport()
         {
-            try
+            return new LevyAccountImportBinding
             {
-                var command = new ImportEmployerAccounts();
-                var endpointInstance = await _endpointInstanceFactory.GetEndpointInstance().ConfigureAwait(false);
-                await endpointInstance.Send(_settings.Values.LevyAccountBalanceEndpoint, command).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Error in LevyAccountImport", e);
-                throw;
-            }
+                EventId = new ImportEmployerAccounts().EventId
+            };
         }
     }
 }

@@ -60,8 +60,9 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
                 _logger.LogError(errorMessage);
                 response.StatusCode = HttpStatusCode.InternalServerError;
                 await response.WriteStringAsync(errorMessage);
-                return null;
             }
+
+            return null;
         }
     }
 }
