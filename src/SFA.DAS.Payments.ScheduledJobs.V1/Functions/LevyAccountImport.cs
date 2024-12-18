@@ -1,12 +1,9 @@
-using Azure;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.Payments.ScheduledJobs.V1.Services;
 using Microsoft.Azure.Functions.Worker.Http;
-using SFA.DAS.Payments.FundingSource.Messages.Commands;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
+using SFA.DAS.Payments.ScheduledJobs.V1.Services;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
 {
@@ -25,7 +22,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
         [Function("LevyAccountImport")]
         public LevyAccountImportBinding Run([TimerTrigger("%LevyAccountSchedule%")] TimerInfo myTimer)
         {
-           return _levyAccountImportService.RunLevyAccountImport();
+            return _levyAccountImportService.RunLevyAccountImport();
         }
 
         [Function("HttpLevyAccountImport")]
