@@ -1,8 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using NServiceBus;
-using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Core;
 using SFA.DAS.Payments.Model.Core.Audit;
@@ -17,19 +15,16 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
     public class AuditDataCleanUpService : IAuditDataCleanUpService
     {
         private readonly IPaymentsDataContext _PaymentDataContext;
-        private readonly IEndpointInstanceFactory _endpointInstanceFactory;
         private readonly ILogger<AuditDataCleanUpService> _logger;
         private readonly IAppsettingsOptions _settings;
         private readonly IServiceBusClientHelper _serviceBusClientHelper;
 
         public AuditDataCleanUpService(IPaymentsDataContext dataContext
-            , IEndpointInstanceFactory endpointInstanceFactory
             , ILogger<AuditDataCleanUpService> paymentLogger
             , IAppsettingsOptions settings
             , IServiceBusClientHelper serviceBusClientHelper)
         {
             _PaymentDataContext = dataContext;
-            _endpointInstanceFactory = endpointInstanceFactory;
             _logger = paymentLogger;
             _settings = settings;
             _serviceBusClientHelper = serviceBusClientHelper;
@@ -129,11 +124,10 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
         private async Task SplitBatchAndEnqueueMessages(SubmissionJobsToBeDeletedBatch batch, string queueName)
         {
-            var endpointInstance = await _endpointInstanceFactory.GetEndpointInstance().ConfigureAwait(false);
-
             foreach (var jobsToBeDeletedModel in batch.JobsToBeDeleted)
             {
-                await endpointInstance.Send(queueName, new SubmissionJobsToBeDeletedBatch { JobsToBeDeleted = new[] { jobsToBeDeletedModel } }).ConfigureAwait(false);
+                await _serviceBusClientHelper.SendMessageToQueueAsync(queueName, jobsToBeDeletedModel.ToString());
+                //await endpointInstance.Send(queueName, new SubmissionJobsToBeDeletedBatch { JobsToBeDeleted = new[] { jobsToBeDeletedModel } }).ConfigureAwait(false);
             }
         }
 

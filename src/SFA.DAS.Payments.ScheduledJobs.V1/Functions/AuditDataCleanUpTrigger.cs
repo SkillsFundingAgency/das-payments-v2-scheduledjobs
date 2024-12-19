@@ -26,7 +26,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
 
             if (myTimer.ScheduleStatus is not null)
             {
-               return await _auditDataCleanUpService.TriggerAuditDataCleanUp();
+                return await _auditDataCleanUpService.TriggerAuditDataCleanUp();
             }
             return null;
         }

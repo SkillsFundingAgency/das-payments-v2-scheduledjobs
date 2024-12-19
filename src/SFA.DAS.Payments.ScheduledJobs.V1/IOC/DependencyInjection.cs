@@ -95,7 +95,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
         {
             services.AddScoped<IAuditDataCleanUpService, AuditDataCleanUpService>();
             services.AddScoped<IPaymentLogger, PaymentLogger>();
-            services.AddScoped<IEndpointInstanceFactory, EndpointInstanceFactory>();
+            //services.AddScoped<IEndpointInstanceFactory, EndpointInstanceFactory>();
             services.AddScoped<ILevyAccountImportService, LevyAccountImportService>();
             services.AddScoped<IApprenticeshipDataService, ApprenticeshipDataService>();
             services.AddScoped<ITelemetry, ApplicationInsightsTelemetry>();
