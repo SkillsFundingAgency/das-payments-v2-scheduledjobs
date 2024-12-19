@@ -10,6 +10,7 @@ using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
 using SFA.DAS.Payments.ScheduledJobs.V1.Common;
 using SFA.DAS.Payments.ScheduledJobs.V1.Configuration;
 using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
+using SFA.DAS.Payments.ScheduledJobs.V1.ServiceBus;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 {
@@ -19,18 +20,34 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
         private readonly IEndpointInstanceFactory _endpointInstanceFactory;
         private readonly ILogger<AuditDataCleanUpService> _logger;
         private readonly IAppsettingsOptions _settings;
+        private readonly IServiceBusClientHelper _serviceBusClientHelper;
 
         public AuditDataCleanUpService(IPaymentsDataContext dataContext
             , IEndpointInstanceFactory endpointInstanceFactory
             , ILogger<AuditDataCleanUpService> paymentLogger
-            , IAppsettingsOptions settings)
+            , IAppsettingsOptions settings
+            , IServiceBusClientHelper serviceBusClientHelper)
         {
             _PaymentDataContext = dataContext;
             _endpointInstanceFactory = endpointInstanceFactory;
             _logger = paymentLogger;
             _settings = settings;
+            _serviceBusClientHelper = serviceBusClientHelper;
         }
 
+
+        public async Task SendMessageToQueueAsync()
+        {
+            await _serviceBusClientHelper.SendMessageToQueueAsync("myqueue", "Hello, Service Bus!");
+        }
+
+        public async Task ReceiveMessagesFromQueueAsync()
+        {
+            await _serviceBusClientHelper.ReceiveMessagesFromQueueAsync("myqueue", async message =>
+            {
+                _logger.LogInformation("Received message: {message}", message.Body.ToString());
+            });
+        }
         public async Task<AuditDataCleanUpBinding> TriggerAuditDataCleanUp()
         {
             IEnumerable<SubmissionJobsToBeDeletedBatch> previousSubmissionJobsToBeDeletedBatches = new List<SubmissionJobsToBeDeletedBatch>();

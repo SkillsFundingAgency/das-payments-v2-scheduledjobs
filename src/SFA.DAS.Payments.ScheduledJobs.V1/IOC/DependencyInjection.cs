@@ -15,6 +15,7 @@ using SFA.DAS.Payments.Core.Configuration;
 using SFA.DAS.Payments.ScheduledJobs.V1.Configuration;
 using SFA.DAS.Payments.ScheduledJobs.V1.DataContext;
 using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
+using SFA.DAS.Payments.ScheduledJobs.V1.ServiceBus;
 using SFA.DAS.Payments.ScheduledJobs.V1.Services;
 using SFA.DAS.Payments.ScheduledJobs.V1.Validator;
 
@@ -90,7 +91,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
             return services;
         }
 
-        public static IServiceCollection AddScoppedServices(this IServiceCollection services)
+        public static IServiceCollection AddScopedServices(this IServiceCollection services)
         {
             services.AddScoped<IAuditDataCleanUpService, AuditDataCleanUpService>();
             services.AddScoped<IPaymentLogger, PaymentLogger>();
@@ -185,5 +186,17 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
 
             return services;
         }
+
+        public static IServiceCollection ConfigureServiceBusConfiguration(this IServiceCollection services, IConfiguration configuration)
+        {
+            var ServiceBusConnectionString = configuration.GetConnectionString("ServiceBusConnectionString");
+            if (string.IsNullOrEmpty(ServiceBusConnectionString))
+            {
+                throw new Exception("ServiceBusConnectionString is not set in the configuration");
+            }
+            services.AddServiceBusClientHelper(ServiceBusConnectionString);
+            return services;
+        }
+
     }
 }

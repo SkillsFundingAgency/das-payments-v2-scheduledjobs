@@ -20,15 +20,15 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
         }
 
         [Function("AuditDataCleanUpTrigger")]
-        public async Task AuditDataCleanUp([TimerTrigger("%AuditDataCleanUpSchedule%")] TimerInfo myTimer)
+        public async Task<AuditDataCleanUpBinding> AuditDataCleanUp([TimerTrigger("%AuditDataCleanUpSchedule%")] TimerInfo myTimer)
         {
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
             if (myTimer.ScheduleStatus is not null)
             {
-                await _auditDataCleanUpService.TriggerAuditDataCleanUp();
+               return await _auditDataCleanUpService.TriggerAuditDataCleanUp();
             }
-
+            return null;
         }
 
         [Function("HttpTriggerAuditDataCleanUp")]
@@ -53,6 +53,30 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
                 }
 
                 return result;
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = $"An error occurred while processing the request. {ex.Message}";
+                _logger.LogError(errorMessage);
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                await response.WriteStringAsync(errorMessage);
+            }
+
+            return null;
+        }
+
+
+        [Function("httpSBA")]
+        public async Task<AuditDataCleanUpBinding> httpSBA(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "httpSBA")] HttpRequestData httpRequest)
+        {
+            var response = httpRequest.CreateResponse();
+
+            try
+            {
+                await _auditDataCleanUpService.SendMessageToQueueAsync();
+
+                await _auditDataCleanUpService.ReceiveMessagesFromQueueAsync();
             }
             catch (Exception ex)
             {
