@@ -23,9 +23,16 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
             ServiceBusReceivedMessage message,
             ServiceBusMessageActions messageActions)
         {
-            var batch = JsonConvert.DeserializeObject<SubmissionJobsToBeDeletedBatch>(message.Body.ToString());
+            try
+            {
+                var batch = JsonConvert.DeserializeObject<SubmissionJobsToBeDeletedBatch>(message.Body.ToString());
 
-            await _auditDataCleanUpService.DataLockEventAuditDataCleanUp(batch);
+                await _auditDataCleanUpService.DataLockEventAuditDataCleanUp(batch);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing the message: {MessageId}", message.MessageId);
+            }
         }
     }
 }
