@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Core;
 using SFA.DAS.Payments.Model.Core.Audit;
@@ -126,8 +127,9 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
         {
             foreach (var jobsToBeDeletedModel in batch.JobsToBeDeleted)
             {
-                await _serviceBusClientHelper.SendMessageToQueueAsync(queueName, jobsToBeDeletedModel.ToString());
-                //await endpointInstance.Send(queueName, new SubmissionJobsToBeDeletedBatch { JobsToBeDeleted = new[] { jobsToBeDeletedModel } }).ConfigureAwait(false);
+                var newSplittedBatchitem = new SubmissionJobsToBeDeletedBatch { JobsToBeDeleted = new[] { jobsToBeDeletedModel } };
+                var serializedMessage = JsonConvert.SerializeObject(newSplittedBatchitem);
+                await _serviceBusClientHelper.SendMessageToQueueAsync(queueName, serializedMessage);
             }
         }
 
