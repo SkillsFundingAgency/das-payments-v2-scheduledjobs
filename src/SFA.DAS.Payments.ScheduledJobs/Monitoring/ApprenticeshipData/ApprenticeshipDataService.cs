@@ -13,7 +13,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.ApprenticeshipData
     {
         Task ProcessComparison();
     }
-    
+
     public class ApprenticeshipDataService : IApprenticeshipsDataService
     {
         private const string DasApproved = "DasApproved";
@@ -69,7 +69,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.ApprenticeshipData
             var paymentsPausedTask = PaymentsDataContext.Apprenticeship.Include(x => x.ApprenticeshipPauses)
                 .CountAsync(paymentsApprenticeship =>
                     paymentsApprenticeship.Status == ApprenticeshipStatus.Paused
-                    && paymentsApprenticeship.ApprenticeshipPauses.Any(pause => 
+                    && paymentsApprenticeship.ApprenticeshipPauses.Any(pause =>
                         pause.PauseDate > pastThirtyDays
                         && pause.ResumeDate == null));
 

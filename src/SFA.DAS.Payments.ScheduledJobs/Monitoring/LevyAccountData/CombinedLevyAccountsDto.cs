@@ -16,17 +16,17 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
                 IsNullOrEmpty = true;
                 return;
             }
-            
+
             this.dasLevyAccountDetails = dasLevyAccountDetails.OrderBy(d => d.AccountId).ToList();
             this.paymentsLevyAccountDetails = paymentsLevyAccountDetails.OrderBy(p => p.AccountId).ToList();
-            
+
             LevyAccounts = GetLevyAccounts();
         }
 
         public bool IsNullOrEmpty { get; }
-        
+
         public int DasLevyAccountCount => dasLevyAccountDetails.Count;
-        
+
         public int PaymentsLevyAccountCount => paymentsLevyAccountDetails.Count;
 
         public decimal DasLevyAccountBalanceTotal => dasLevyAccountDetails.Sum(d => d.Balance);

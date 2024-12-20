@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
+using Microsoft.Data.SqlClient;
 using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.ScheduledJobs.AuditDataCleanUp

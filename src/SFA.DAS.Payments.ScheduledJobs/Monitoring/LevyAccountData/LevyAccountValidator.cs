@@ -13,7 +13,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
         public LevyAccountValidator(ITelemetry telemetry)
         {
             this.telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
-            
+
             RuleFor(la => la.DasLevyAccount.AccountId)
                 .NotEmpty()
                 .OnFailure(LogMissingDasAccount);
@@ -29,7 +29,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
             RuleFor(la => la.DasLevyAccount.TransferAllowance)
                 .Equal(la => la.PaymentsLevyAccount.TransferAllowance)
                 .OnFailure(LogTransferAllowanceMismatch);
-            
+
             RuleFor(la => la.DasLevyAccount.IsLevyPayer)
                 .Equal(la => la.PaymentsLevyAccount.IsLevyPayer)
                 .OnFailure(LogIsLevyPayerMismatch);
@@ -39,7 +39,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
         {
             return levyAccountsDto.DasLevyAccount.AccountId != 0 ? levyAccountsDto.DasLevyAccount.AccountId : levyAccountsDto.PaymentsLevyAccount.AccountId;
         }
-        
+
         private void LogMissingPaymentsAccount(LevyAccountsDto levyAccountsDto)
         {
             telemetry.TrackEvent("EmployerAccountReferenceData.Comparison.MissingLevyAccount", new Dictionary<string, string>
@@ -57,7 +57,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
                 { "LevyAccountId", GetAccountId(levyAccountsDto).ToString() },
             }, null);
         }
-        
+
         private void LogIsLevyPayerMismatch(LevyAccountsDto levyAccountsDto)
         {
             telemetry.TrackEvent("EmployerAccountReferenceData.Comparison.IsLevyPayerMismatch", new Dictionary<string, string>

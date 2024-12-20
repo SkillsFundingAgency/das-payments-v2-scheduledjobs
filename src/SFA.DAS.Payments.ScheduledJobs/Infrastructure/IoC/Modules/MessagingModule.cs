@@ -1,12 +1,10 @@
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Autofac;
 using NServiceBus;
-using NServiceBus.Features;
+using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.ScheduledJobs.Infrastructure.Configuration;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC.Modules
 {
@@ -24,16 +22,16 @@ namespace SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC.Modules
 
                                  var logger = c.Resolve<MessagingLogger>();
 
-                                 endpointConfiguration.CustomDiagnosticsWriter(diagnostics =>
-                                                                               {
-                                                                                   logger.Info(diagnostics);
-                                                                                   return Task.CompletedTask;
-                                                                               });
+                                 endpointConfiguration.CustomDiagnosticsWriter(
+                                     (diagnostics, ct) =>
+                                     {
+                                         logger.Info(diagnostics);
+                                         return Task.CompletedTask;
+                                     });
 
                                  var conventions = endpointConfiguration.Conventions();
-                                 conventions.DefiningCommandsAs(type => ( type.Namespace?.StartsWith("SFA.DAS.Payments") ?? false ) && (bool) type.Namespace?.Contains(".Messages.Commands"));
+                                 conventions.DefiningCommandsAs(type => (type.Namespace?.StartsWith("SFA.DAS.Payments") ?? false) && (bool)type.Namespace?.Contains(".Messages.Commands"));
 
-                                 endpointConfiguration.DisableFeature<TimeoutManager>();
                                  if (!string.IsNullOrEmpty(config.DasNServiceBusLicenseKey))
                                  {
                                      var license = WebUtility.HtmlDecode(config.DasNServiceBusLicenseKey);
@@ -41,10 +39,10 @@ namespace SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC.Modules
                                  }
 
                                  var transport = endpointConfiguration.UseTransport<AzureServiceBusTransport>();
-                                 transport.ConnectionString(config.ServiceBusConnectionString).Transactions(TransportTransactionMode.ReceiveOnly).RuleNameShortener(ruleName => ruleName.Split('.').LastOrDefault() ?? ruleName);
+                                 transport.ConnectionString(config.ServiceBusConnectionString);
                                  transport.PrefetchCount(20);
                                  builder.RegisterInstance(transport).As<TransportExtensions<AzureServiceBusTransport>>().SingleInstance();
-                                 endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
+                                 endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
                                  endpointConfiguration.EnableInstallers();
 
                                  return endpointConfiguration;

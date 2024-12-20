@@ -1,29 +1,35 @@
 using System;
 using System.Threading.Tasks;
-using AzureFunctions.Autofac;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
-using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.ApprenticeshipData
 {
-    [DependencyInjectionConfig(typeof(DependencyInjectionConfig))]
-    public static class ApprenticeshipDataTrigger
+    public class ApprenticeshipDataTrigger
     {
-        [FunctionName("TimerTriggerApprenticeshipsReferenceDataComparison")]
-        public static async Task TimerTriggerApprenticeshipsReferenceDataComparison([TimerTrigger("%ApprenticeshipValidationSchedule%", RunOnStartup = false)]TimerInfo myTimer, [Inject]IApprenticeshipsDataService service, [Inject] IPaymentLogger log)
+        private readonly ILogger _logger;
+        private readonly IApprenticeshipsDataService _service;
+        private readonly IPaymentLogger _log;
+
+        public ApprenticeshipDataTrigger(ILogger<ApprenticeshipDataTrigger> logger, IApprenticeshipsDataService service, IPaymentLogger log)
         {
-            await RunApprenticeshipsReferenceDataComparison(service, log);
+            _logger = logger;
+            _service = service;
+            _log = log;
         }
 
-        [FunctionName("HttpTriggerApprenticeshipsReferenceDataComparison")]
-        public static async Task HttpTriggerApprenticeshipsReferenceDataComparison(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest httpRequest,
-            [Inject]IApprenticeshipsDataService service, [Inject] IPaymentLogger log)
+        [Function("TimerTriggerApprenticeshipsReferenceDataComparison")]
+        public async Task TimerTriggerApprenticeshipsReferenceDataComparison([TimerTrigger("%ApprenticeshipValidationSchedule%", RunOnStartup = false)] TimerInfo myTimer)
         {
-            await RunApprenticeshipsReferenceDataComparison(service, log);
+            await RunApprenticeshipsReferenceDataComparison(_service, _log);
+        }
+
+        [Function("HttpTriggerApprenticeshipsReferenceDataComparison")]
+        public async Task HttpTriggerApprenticeshipsReferenceDataComparison([HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest httpRequest)
+        {
+            await RunApprenticeshipsReferenceDataComparison(_service, _log);
         }
 
         private static async Task RunApprenticeshipsReferenceDataComparison(IApprenticeshipsDataService service, IPaymentLogger log)

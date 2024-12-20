@@ -1,29 +1,28 @@
 ﻿using System.Threading.Tasks;
-using AzureFunctions.Autofac;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
+using Microsoft.Azure.Functions.Worker;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
 {
-    [DependencyInjectionConfig(typeof(DependencyInjectionConfig))]
     public class LevyAccountValidationFunction
     {
-        [FunctionName("TimerTriggerLevyAccountValidation")]
-        public static async Task TimerTriggerLevyAccountValidation(
-            [TimerTrigger("%LevyAccountValidationSchedule%", RunOnStartup = false)] TimerInfo timerInfo,
-            [Inject] ILevyAccountValidationService levyAccountValidationService)
+        private readonly ILevyAccountValidationService _levyAccountValidationService;
+
+        public LevyAccountValidationFunction(ILevyAccountValidationService levyAccountValidationService)
         {
-            await levyAccountValidationService.Validate();
+            _levyAccountValidationService = levyAccountValidationService;
         }
 
-        [FunctionName("HttpTriggerLevyAccountValidation")]
-        public static async Task HttpTriggerLevyAccountValidation(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest httpRequest,
-            [Inject] ILevyAccountValidationService levyAccountValidationService)
+        [Function("TimerTriggerLevyAccountValidation")]
+        public async Task TimerTriggerLevyAccountValidation([TimerTrigger("%LevyAccountValidationSchedule%", RunOnStartup = false)] TimerInfo timerInfo)
         {
-            await levyAccountValidationService.Validate();
+            await _levyAccountValidationService.Validate();
+        }
+
+        [Function("HttpTriggerLevyAccountValidation")]
+        public async Task HttpTriggerLevyAccountValidation([HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest httpRequest)
+        {
+            await _levyAccountValidationService.Validate();
         }
     }
 }

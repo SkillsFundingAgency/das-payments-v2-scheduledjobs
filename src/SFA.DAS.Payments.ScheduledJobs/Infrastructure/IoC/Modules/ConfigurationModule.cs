@@ -31,7 +31,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC.Modules
                 })
                 .As<IScheduledJobsConfiguration>()
                 .SingleInstance();
-            
+
             builder.Register((c, p) =>
                    {
                        var configHelper = c.Resolve<IConfigurationHelper>();

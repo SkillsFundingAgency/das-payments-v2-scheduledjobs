@@ -13,7 +13,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
     {
         Task Validate();
     }
-    
+
     public class LevyAccountValidationService : ILevyAccountValidationService
     {
         private readonly IDasLevyAccountApiWrapper dasLevyAccountApiWrapper;
@@ -36,11 +36,11 @@ namespace SFA.DAS.Payments.ScheduledJobs.Monitoring.LevyAccountData
         public async Task Validate()
         {
             var combinedLevyAccountBalance = await GetLevyAccountDetails();
-            
+
             paymentLogger.LogDebug("Started Validating Employer Accounts");
 
             await validator.ValidateAsync(combinedLevyAccountBalance);
-        
+
             paymentLogger.LogInfo("Finished Validating Employer Accounts");
         }
 

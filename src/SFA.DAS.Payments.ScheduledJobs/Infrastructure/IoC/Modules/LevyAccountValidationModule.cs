@@ -25,7 +25,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC.Modules
 
                 return new DasLevyAccountApiWrapper(config.AccountApiBatchSize, apiClient, logger);
             }).As<IDasLevyAccountApiWrapper>().InstancePerLifetimeScope();
-            
+
             builder.RegisterType<LevyAccountValidationService>().As<ILevyAccountValidationService>().InstancePerLifetimeScope();
         }
     }

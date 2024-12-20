@@ -1,22 +1,29 @@
 ﻿using System.Threading.Tasks;
-using AzureFunctions.Autofac;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using SFA.DAS.Payments.ScheduledJobs.Infrastructure.IoC;
+
 // ReSharper disable UnusedMember.Global
 
 namespace SFA.DAS.Payments.ScheduledJobs.AuditDataCleanUp
 {
-    [DependencyInjectionConfig(typeof(DependencyInjectionConfig))]
-    public static class EarningAuditDataCleanUp
+    public class EarningAuditDataCleanUp
     {
-        [FunctionName("EarningEventAuditDataCleanUp")]
-        public static async Task EarningEventAuditDataCleanUp([ServiceBusTrigger("%EarningAuditDataCleanUpQueue%", Connection = "ServiceBusConnectionString")] string message,
-                                                              [Inject] IAuditDataCleanUpService auditDataCleanUpService)
+        private readonly ILogger _logger;
+        private readonly IAuditDataCleanUpService _auditDataCleanUpService;
+
+        public EarningAuditDataCleanUp(ILogger<EarningAuditDataCleanUp> logger, IAuditDataCleanUpService auditDataCleanUpService)
+        {
+            _logger = logger;
+            _auditDataCleanUpService = auditDataCleanUpService;
+        }
+
+        [Function("EarningEventAuditDataCleanUp")]
+        public async Task EarningEventAuditDataCleanUp([ServiceBusTrigger("%EarningAuditDataCleanUpQueue%", Connection = "ServiceBusConnectionString")] string message)
         {
             var batch = JsonConvert.DeserializeObject<SubmissionJobsToBeDeletedBatch>(message);
-            
-            await auditDataCleanUpService.EarningEventAuditDataCleanUp(batch);
+
+            await _auditDataCleanUpService.EarningEventAuditDataCleanUp(batch);
         }
     }
 }

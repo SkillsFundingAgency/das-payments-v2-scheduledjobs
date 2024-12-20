@@ -12,13 +12,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Monitoring.LevyAccountData
             TransferAllowance = 100,
             IsLevyPayer = true
         };
-        
+
         public LevyAccountBuilder SetBalance(decimal balance)
         {
             levyAccountModel.Balance = balance;
             return this;
         }
-        
+
         public LevyAccountBuilder SetTransferAllowance(decimal transferAllowance)
         {
             levyAccountModel.TransferAllowance = transferAllowance;
@@ -30,7 +30,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Monitoring.LevyAccountData
             levyAccountModel.IsLevyPayer = isLevyPayer;
             return this;
         }
-        
+
         public IList<LevyAccountModel> Build(int count)
         {
             return Enumerable.Range(0, count).Select(index => new LevyAccountModel
