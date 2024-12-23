@@ -31,19 +31,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
             _serviceBusClientHelper = serviceBusClientHelper;
         }
 
-
-        public async Task SendMessageToQueueAsync()
-        {
-            await _serviceBusClientHelper.SendMessageToQueueAsync("myqueue", "Hello, Service Bus!");
-        }
-
-        public async Task ReceiveMessagesFromQueueAsync()
-        {
-            await _serviceBusClientHelper.ReceiveMessagesFromQueueAsync("myqueue", async message =>
-            {
-                _logger.LogInformation("Received message: {message}", message.Body.ToString());
-            });
-        }
         public async Task<AuditDataCleanUpBinding> TriggerAuditDataCleanUp()
         {
             IEnumerable<SubmissionJobsToBeDeletedBatch> previousSubmissionJobsToBeDeletedBatches = new List<SubmissionJobsToBeDeletedBatch>();
@@ -57,21 +44,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
             var submissionJobsToBeDeletedBatches = previousSubmissionJobsToBeDeletedBatches.Union(currentSubmissionJobsToBeDeletedBatches);
             var submissionJobsToBeDeletedBatchesList = submissionJobsToBeDeletedBatches.ToList();
-
-            if (submissionJobsToBeDeletedBatchesList.Count == 0)
-            {
-                if (submissionJobsToBeDeletedBatchesList.Count == 0)
-                {
-                    submissionJobsToBeDeletedBatchesList.Add(new SubmissionJobsToBeDeletedBatch
-                    {
-                        JobsToBeDeleted = new[]
-                        {
-                            new SubmissionJobsToBeDeletedModel { DcJobId = 33 },
-                            new SubmissionJobsToBeDeletedModel { DcJobId = 44 }
-                        }
-                    });
-                }
-            }
 
             _logger.LogInformation($"Triggering Audit Data Cleanup for {submissionJobsToBeDeletedBatchesList.Count} submission job batches. " +
                                   $"DCJobIds: {string.Join(",", submissionJobsToBeDeletedBatchesList.SelectMany(x => x.JobsToBeDeleted.Select(y => y.DcJobId)))}");

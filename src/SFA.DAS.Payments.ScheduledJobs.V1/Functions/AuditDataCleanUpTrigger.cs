@@ -65,28 +65,5 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Functions
             return null;
         }
 
-
-        [Function("httpSBA")]
-        public async Task<AuditDataCleanUpBinding> httpSBA(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "httpSBA")] HttpRequestData httpRequest)
-        {
-            var response = httpRequest.CreateResponse();
-
-            try
-            {
-                await _auditDataCleanUpService.SendMessageToQueueAsync();
-
-                await _auditDataCleanUpService.ReceiveMessagesFromQueueAsync();
-            }
-            catch (Exception ex)
-            {
-                string errorMessage = $"An error occurred while processing the request. {ex.Message}";
-                _logger.LogError(errorMessage);
-                response.StatusCode = HttpStatusCode.InternalServerError;
-                await response.WriteStringAsync(errorMessage);
-            }
-
-            return null;
-        }
     }
 }
