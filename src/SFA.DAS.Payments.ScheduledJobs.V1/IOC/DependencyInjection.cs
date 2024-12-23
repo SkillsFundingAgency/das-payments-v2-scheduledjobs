@@ -87,7 +87,24 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
                         maxRetryDelay: TimeSpan.FromSeconds(30),
                         errorNumbersToAdd: null);
                 });
-            });
+            }, ServiceLifetime.Transient);
+            services.AddTransient<IPaymentsDataContext, PaymentsDataContext>();
+            return services;
+        }
+
+        public static IServiceCollection AddCommitmentsDataContext(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<CommitmentsDataContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("CommitmentsConnectionString"), sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null);
+                });
+            }, ServiceLifetime.Transient);
+            services.AddTransient<ICommitmentsDataContext, CommitmentsDataContext>();
             return services;
         }
 
@@ -105,15 +122,14 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
             services.AddScoped<IExecutionContext, ESFA.DC.Logging.ExecutionContext>();
 
 
-
             // Register FluentValidation validators
             services.AddTransient<IValidator<LevyAccountsDto>, LevyAccountValidator>();
             services.AddTransient<IValidator<CombinedLevyAccountsDto>, CombinedLevyAccountValidator>();
 
 
 
-            services.AddScoped<IPaymentsDataContext, PaymentsDataContext>();
-            services.AddScoped<ICommitmentsDataContext, CommitmentsDataContext>();
+            //services.AddScoped<IPaymentsDataContext, PaymentsDataContext>();
+            //services.AddScoped<ICommitmentsDataContext, CommitmentsDataContext>();
 
             return services;
         }
@@ -124,22 +140,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
             services.AddSingleton<IVersionInfo, VersionInfo>();
             return services;
         }
-
-        public static IServiceCollection AddCommitmentsDataContext(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddDbContext<CommitmentsDataContext>(options =>
-            {
-                options.UseSqlServer(configuration.GetConnectionString("CommitmentsConnectionString"), sqlOptions =>
-                {
-                    sqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 5,
-                        maxRetryDelay: TimeSpan.FromSeconds(30),
-                        errorNumbersToAdd: null);
-                });
-            });
-            return services;
-        }
-
+       
         public static IServiceCollection AddAccountApiConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<IAccountApiConfiguration>(provider =>

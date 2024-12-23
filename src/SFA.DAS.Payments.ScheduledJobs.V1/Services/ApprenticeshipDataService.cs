@@ -4,6 +4,7 @@ using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.ScheduledJobs.V1.DataContext;
 using SFA.DAS.Payments.ScheduledJobs.V1.Enums;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 {
@@ -16,75 +17,113 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
         private const string PaymentsStopped = "PaymentsStopped";
         private const string PaymentsPaused = "PaymentsPaused";
         private const string ApprovalsReferenceDataComparisonEvent = "ApprovalsReferenceDataComparisonEvent";
+        private const int DaysToLookBack = 30;
 
-        private readonly ICommitmentsDataContext _commitmentsDataContext;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ITelemetry _telemetry;
-        private readonly IPaymentsDataContext _paymentDataContext;
 
-
-        public ApprenticeshipDataService(ITelemetry telemetry
-            , IPaymentsDataContext dataContext,
-            ICommitmentsDataContext commitmentsDataContext)
+        public ApprenticeshipDataService(ITelemetry telemetry, IServiceScopeFactory serviceScopeFactory)
         {
-            _telemetry = telemetry;
-            _paymentDataContext = dataContext;
-            _commitmentsDataContext = commitmentsDataContext;
+            _telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
+            _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
         }
 
         public async Task ProcessComparison()
         {
-            var pastThirtyDays = DateTime.UtcNow.AddDays(-30).Date;
+            try
+            {
+                var pastThirtyDays = DateTime.UtcNow.AddDays(-DaysToLookBack).Date;
 
-            var commitmentsApprovedTask = _commitmentsDataContext.Apprenticeship.Include(x => x.Commitment)
+                var commitmentsApprovedTask = Task.Run(() => GetCommitmentsApprovedCount(pastThirtyDays));
+                var commitmentsStoppedTask = Task.Run(() => GetCommitmentsStoppedCount(pastThirtyDays));
+                var commitmentsPausedTask = Task.Run(() => GetCommitmentsPausedCount(pastThirtyDays));
+                var paymentsApprovedTask = Task.Run(() => GetPaymentsApprovedCount(pastThirtyDays));
+                var paymentsStoppedTask = Task.Run(() => GetPaymentsStoppedCount(pastThirtyDays));
+                var paymentsPausedTask = Task.Run(() => GetPaymentsPausedCount(pastThirtyDays));
+
+                await Task.WhenAll(commitmentsApprovedTask, commitmentsStoppedTask, commitmentsPausedTask, paymentsApprovedTask, paymentsStoppedTask, paymentsPausedTask).ConfigureAwait(false);
+
+                TrackTelemetryEvent(commitmentsApprovedTask.Result, commitmentsStoppedTask.Result, commitmentsPausedTask.Result, paymentsApprovedTask.Result, paymentsStoppedTask.Result, paymentsPausedTask.Result);
+            }
+            catch (Exception ex)
+            {
+                _telemetry.TrackEvent("Exception", new Dictionary<string, string> { { "ExceptionMessage", ex.Message } }, new Dictionary<string, double>());
+                throw;
+            }
+        }
+
+        private async Task<int> GetCommitmentsApprovedCount(DateTime pastThirtyDays)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<CommitmentsDataContext>();
+            return await context.Apprenticeship.Include(x => x.Commitment)
                 .CountAsync(commitmentsApprenticeship =>
                     commitmentsApprenticeship.Commitment.EmployerAndProviderApprovedOn > pastThirtyDays
                     && (commitmentsApprenticeship.Commitment.Approvals == 3 || commitmentsApprenticeship.Commitment.Approvals == 7));
+        }
 
-            var commitmentsStoppedTask = _commitmentsDataContext.Apprenticeship
+        private async Task<int> GetCommitmentsStoppedCount(DateTime pastThirtyDays)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<CommitmentsDataContext>();
+            return await context.Apprenticeship
                 .CountAsync(commitmentsApprenticeship =>
                     commitmentsApprenticeship.StopDate > pastThirtyDays
                     && commitmentsApprenticeship.PaymentStatus == PaymentStatus.Withdrawn);
+        }
 
-            var commitmentsPausedTask = _commitmentsDataContext.Apprenticeship
+        private async Task<int> GetCommitmentsPausedCount(DateTime pastThirtyDays)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<CommitmentsDataContext>();
+            return await context.Apprenticeship
                 .CountAsync(commitmentsApprenticeship =>
                     commitmentsApprenticeship.IsApproved
                     && commitmentsApprenticeship.PauseDate > pastThirtyDays
                     && commitmentsApprenticeship.PaymentStatus == PaymentStatus.Paused);
+        }
 
-            var paymentsApprovedTask = _paymentDataContext.Apprenticeship
+        private async Task<int> GetPaymentsApprovedCount(DateTime pastThirtyDays)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<PaymentsDataContext>();
+            return await context.Apprenticeship
                 .CountAsync(paymentsApprenticeship => paymentsApprenticeship.CreationDate > pastThirtyDays);
+        }
 
-            var paymentsStoppedTask = _paymentDataContext.Apprenticeship
+        private async Task<int> GetPaymentsStoppedCount(DateTime pastThirtyDays)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<PaymentsDataContext>();
+            return await context.Apprenticeship
                 .CountAsync(paymentsApprenticeship =>
                     paymentsApprenticeship.Status == ApprenticeshipStatus.Stopped
                     && paymentsApprenticeship.StopDate > pastThirtyDays);
+        }
 
-            var paymentsPausedTask = _paymentDataContext.Apprenticeship.Include(x => x.ApprenticeshipPauses)
+        private async Task<int> GetPaymentsPausedCount(DateTime pastThirtyDays)
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<PaymentsDataContext>();
+            return await context.Apprenticeship.Include(x => x.ApprenticeshipPauses)
                 .CountAsync(paymentsApprenticeship =>
                     paymentsApprenticeship.Status == ApprenticeshipStatus.Paused
                     && paymentsApprenticeship.ApprenticeshipPauses.Any(pause =>
                         pause.PauseDate > pastThirtyDays
                         && pause.ResumeDate == null));
+        }
 
-            await Task.WhenAll(commitmentsApprovedTask, commitmentsStoppedTask, commitmentsPausedTask, paymentsApprovedTask, paymentsStoppedTask, paymentsPausedTask).ConfigureAwait(false);
-
-            var commitmentsApprovedCount = commitmentsApprovedTask.Result;
-            var commitmentsStoppedCount = commitmentsStoppedTask.Result;
-            var commitmentsPausedCount = commitmentsPausedTask.Result;
-
-            var paymentsApprovedCount = paymentsApprovedTask.Result;
-            var paymentsStoppedCount = paymentsStoppedTask.Result;
-            var paymentsPausedCount = paymentsPausedTask.Result;
-
+        private void TrackTelemetryEvent(int commitmentsApprovedCount, int commitmentsStoppedCount, int commitmentsPausedCount, int paymentsApprovedCount, int paymentsStoppedCount, int paymentsPausedCount)
+        {
             _telemetry.TrackEvent(ApprovalsReferenceDataComparisonEvent, new Dictionary<string, double>
-            {
-                { DasApproved, commitmentsApprovedCount },
-                { DasStopped, commitmentsStoppedCount },
-                { DasPaused, commitmentsPausedCount },
-                { PaymentsApproved, paymentsApprovedCount },
-                { PaymentsStopped, paymentsStoppedCount },
-                { PaymentsPaused, paymentsPausedCount },
-            });
+                {
+                    { DasApproved, commitmentsApprovedCount },
+                    { DasStopped, commitmentsStoppedCount },
+                    { DasPaused, commitmentsPausedCount },
+                    { PaymentsApproved, paymentsApprovedCount },
+                    { PaymentsStopped, paymentsStoppedCount },
+                    { PaymentsPaused, paymentsPausedCount },
+                });
         }
     }
 }
