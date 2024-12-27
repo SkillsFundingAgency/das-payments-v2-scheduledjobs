@@ -88,7 +88,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
                         errorNumbersToAdd: null);
                 });
             }, ServiceLifetime.Transient);
-            services.AddTransient<IPaymentsDataContext, PaymentsDataContext>();
+            services.AddScoped<IPaymentsDataContext, PaymentsDataContext>();
             return services;
         }
 
@@ -104,7 +104,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
                         errorNumbersToAdd: null);
                 });
             }, ServiceLifetime.Transient);
-            services.AddTransient<ICommitmentsDataContext, CommitmentsDataContext>();
+            services.AddScoped<ICommitmentsDataContext, CommitmentsDataContext>();
             return services;
         }
 
