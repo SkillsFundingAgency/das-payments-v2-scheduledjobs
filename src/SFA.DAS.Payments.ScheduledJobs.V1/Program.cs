@@ -16,15 +16,15 @@ var host = new HostBuilder()
      {
          services.AddApplicationInsightsTelemetryWorkerService();
          services.ConfigureFunctionsApplicationInsights();
-         
-         
+
+
          services.AddPaymentDatabaseContext(context.Configuration);
          services.AddCommitmentsDataContext(context.Configuration);
 
          services.AddAppsettingsConfiguration();
          services.AddScopedServices();
          services.AddSingletonServices();
-         
+
          services.AddAccountApiConfiguration(context.Configuration);
          services.AddApplicationLoggerSettings();
          services.ConfigureServiceBusConfiguration(context.Configuration);

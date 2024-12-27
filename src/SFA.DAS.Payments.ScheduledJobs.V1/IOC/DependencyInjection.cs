@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
-using SFA.DAS.Payments.Application.Messaging;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Core.Configuration;
 using SFA.DAS.Payments.ScheduledJobs.V1.Configuration;
@@ -140,7 +139,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
             services.AddSingleton<IVersionInfo, VersionInfo>();
             return services;
         }
-       
+
         public static IServiceCollection AddAccountApiConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<IAccountApiConfiguration>(provider =>

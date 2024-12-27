@@ -1,6 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Logging;
-using Polly;
 using Polly.Retry;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.ServiceBus
@@ -11,16 +10,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.ServiceBus
         private readonly ILogger<ServiceBusClientHelper> _logger;
         private readonly AsyncRetryPolicy _retryPolicy;
 
-        public ServiceBusClientHelper(ServiceBusClient client, ILogger<ServiceBusClientHelper> logger)
+        public ServiceBusClientHelper(ServiceBusClient client,
+            ILogger<ServiceBusClientHelper> logger,
+            AsyncRetryPolicy retryPolicy)
         {
             _serviceBusClient = client;
             _logger = logger;
-            _retryPolicy = Policy.Handle<Exception>()
-                                 .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                                                    (exception, timeSpan, retryCount, context) =>
-                                                    {
-                                                        _logger.LogWarning($"Retry {retryCount} encountered an error: {exception.Message}. Waiting {timeSpan} before next retry.");
-                                                    });
+            _retryPolicy = retryPolicy;
         }
 
         public async Task SendMessageToQueueAsync(string queueName, string message)

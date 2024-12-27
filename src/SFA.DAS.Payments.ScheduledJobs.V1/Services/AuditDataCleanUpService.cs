@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Core;
-using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
 using SFA.DAS.Payments.ScheduledJobs.V1.Common;
 using SFA.DAS.Payments.ScheduledJobs.V1.Configuration;
