@@ -21,19 +21,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.UnitTest.Functions
             _apprenticeshipDataTrigger = new ApprenticeshipDataTrigger(_mockLogger.Object, _mockApprenticeshipDataService.Object);
         }
 
-        //[Test]
-        //public async Task TimerTriggerApprenticeshipsReferenceDataComparison_ShouldCallProcessComparison()
-        //{
-        //    // Arrange
-        //    var timerInfo = new TimerInfo(null, new ScheduleStatus(), false);
-
-        //    // Act
-        //    await _apprenticeshipDataTrigger.TimerTriggerApprenticeshipsReferenceDataComparison(timerInfo);
-
-        //    // Assert
-        //    _mockApprenticeshipDataService.Verify(service => service.ProcessComparison(), Times.Once);
-        //}
-
         [Test]
         public async Task HttpTriggerApprenticeshipsReferenceDataComparison_ShouldCallProcessComparison()
         {
