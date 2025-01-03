@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.ApplicationInsights.Channel;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
@@ -8,7 +9,7 @@ using SFA.DAS.Payments.ScheduledJobs.V1.DataContext;
 using SFA.DAS.Payments.ScheduledJobs.V1.Enums;
 using SFA.DAS.Payments.ScheduledJobs.V1.Models;
 using SFA.DAS.Payments.ScheduledJobs.V1.Services;
-using ApprenticeshipModel = SFA.DAS.Payments.Model.Core.Entities.ApprenticeshipModel;
+using ITelemetry = SFA.DAS.Payments.Application.Infrastructure.Telemetry.ITelemetry;
 
 namespace SFA.DAS.Payments.ScheduledJobs.V1.UnitTest.Services
 {
@@ -19,6 +20,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.UnitTest.Services
         private IServiceScopeFactory _serviceScopeFactory;
         private DbContextOptions<CommitmentsDataContext> _commitmentsOptions;
         private DbContextOptions<PaymentsDataContext> _paymentsOptions;
+        private const string EventName = "ApprovalsReferenceDataComparisonEvent";
 
         [SetUp]
         public void SetUp()
@@ -39,9 +41,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.UnitTest.Services
                 .AddDbContext<PaymentsDataContext>(options => options.UseInMemoryDatabase("PaymentsDatabase"))
                 .BuildServiceProvider();
 
-            //var scope = serviceProvider.CreateScope();
-            //_serviceScopeFactory = Mock.Of<IServiceScopeFactory>(x => x.CreateScope() == scope);
-
             _serviceScopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
         }
 
@@ -57,89 +56,75 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.UnitTest.Services
 
             // Assert
             _mockTelemetry.Verify(t => t.TrackEvent(It.IsAny<string>(), It.IsAny<Dictionary<string, double>>()), Times.Once);
+
+            _mockTelemetry.Verify(x => x.TrackEvent(EventName, It.Is<Dictionary<string, double>>(metrics
+                => metrics.Any(metric => metric.Key == "DasApproved" && metric.Value == 3))));
+
+            _mockTelemetry.Verify(x => x.TrackEvent(EventName, It.Is<Dictionary<string, double>>(metrics
+                => metrics.Any(metric => metric.Key == "DasStopped" && metric.Value == 3))));
+
+            _mockTelemetry.Verify(x => x.TrackEvent(EventName, It.Is<Dictionary<string, double>>(metrics
+               => metrics.Any(metric => metric.Key == "DasPaused" && metric.Value == 1))));
+
+            _mockTelemetry.Verify(x => x.TrackEvent(EventName, It.Is<Dictionary<string, double>>(metrics
+                => metrics.Any(metric => metric.Key == "PaymentsApproved" && metric.Value == 4))));
+
+            _mockTelemetry.Verify(x => x.TrackEvent(EventName, It.Is<Dictionary<string, double>>(metrics
+               => metrics.Any(metric => metric.Key == "PaymentsStopped" && metric.Value == 1))));
+
+            _mockTelemetry.Verify(x => x.TrackEvent(EventName, It.Is<Dictionary<string, double>>(metrics
+                => metrics.Any(metric => metric.Key == "PaymentsPaused" && metric.Value == 3))));
         }
 
         private void SeedData()
         {
             using (var context = new CommitmentsDataContext(_commitmentsOptions))
             {
-                context.Apprenticeship.AddRange(
-                    new Models.ApprenticeshipModel { Commitment = new Commitment { EmployerAndProviderApprovedOn = DateTime.UtcNow.AddDays(-10), Approvals = 3 } },
-                    new Models.ApprenticeshipModel { StopDate = DateTime.UtcNow.AddDays(-5), PaymentStatus = PaymentStatus.Withdrawn },
-                    new Models.ApprenticeshipModel { IsApproved = true, PauseDate = DateTime.UtcNow.AddDays(-3), PaymentStatus = PaymentStatus.Paused }
-                );
+
+                var dasApprenticeships = new List<Models.ApprenticeshipModel>
+                {
+                    new Models.ApprenticeshipModel { IsApproved = true, Commitment = new Commitment { EmployerAndProviderApprovedOn = DateTime.Now, Approvals = 3} },
+                    new Models.ApprenticeshipModel { IsApproved = false, Commitment = new Commitment { EmployerAndProviderApprovedOn = DateTime.Now, Approvals = 3} }, //assert we are using the correct new logic based on query in PV2-2215
+                    new Models.ApprenticeshipModel { IsApproved = true, Commitment = new Commitment { EmployerAndProviderApprovedOn = DateTime.Now, Approvals = 7} }, //assert we include transfers
+
+                    new Models.ApprenticeshipModel { PaymentStatus = PaymentStatus.Withdrawn, StopDate = DateTime.Now, Commitment = new Commitment { EmployerAndProviderApprovedOn = DateTime.Now } }, //expected in stopped count
+                    new Models.ApprenticeshipModel { PaymentStatus = PaymentStatus.Withdrawn, StopDate = DateTime.Now, Commitment = new Commitment { EmployerAndProviderApprovedOn = DateTime.Now } }, //expected in stopped count
+                    new Models.ApprenticeshipModel { PaymentStatus = PaymentStatus.Withdrawn, StopDate = DateTime.Now.AddDays(10), Commitment = new Commitment { EmployerAndProviderApprovedOn = DateTime.Now } }, //expected in stopped count
+                    new Models.ApprenticeshipModel { PaymentStatus = PaymentStatus.Withdrawn, StopDate = DateTime.Now.AddDays(-31), Commitment = new Commitment { EmployerAndProviderApprovedOn = DateTime.Now } }, //not expected in stopped count (stop date too old)
+                    new Models.ApprenticeshipModel { PaymentStatus = PaymentStatus.Withdrawn, Commitment = new Commitment { EmployerAndProviderApprovedOn = DateTime.Now } }, //not expected in stopped count (null stop date)
+                    new Models.ApprenticeshipModel { PaymentStatus = PaymentStatus.Completed, StopDate = DateTime.Now, Commitment = new Commitment { EmployerAndProviderApprovedOn = DateTime.Now } }, //not expected in stopped count (wrong status even though stop date is now)
+
+                    new Models.ApprenticeshipModel { PaymentStatus = PaymentStatus.Paused, IsApproved = true, PauseDate = DateTime.Now },
+                    new Models.ApprenticeshipModel { PaymentStatus = PaymentStatus.Withdrawn, IsApproved = true, PauseDate = DateTime.Now },
+                    new Models.ApprenticeshipModel { PaymentStatus = PaymentStatus.Paused, IsApproved = false, PauseDate = DateTime.Now },
+                    new Models.ApprenticeshipModel { PaymentStatus = PaymentStatus.Paused, IsApproved = true, PauseDate = DateTime.Now.AddDays(-31) },
+                };
+
+                context.Apprenticeship.AddRange(dasApprenticeships);
                 context.SaveChanges();
             }
 
             using (var context = new PaymentsDataContext(_paymentsOptions))
             {
-                var apprenticeships = new List<ApprenticeshipModel>
+                var paymentsApprenticeships = new List<Model.Core.Entities.ApprenticeshipModel>
                 {
-                    new ApprenticeshipModel
-                    {
-                        Id = 1,
-                        AccountId = 12345,
-                        AgreementId = "AG123",
-                        AgreedOnDate = DateTime.UtcNow.AddDays(-20),
-                        Uln = 9876543210,
-                        Ukprn = 12345678,
-                        EstimatedStartDate = DateTime.UtcNow.AddMonths(-1),
-                        EstimatedEndDate = DateTime.UtcNow.AddMonths(11),
-                        StandardCode = 123,
-                        ProgrammeType = 1,
-                        FrameworkCode = 456,
-                        PathwayCode = 789,
-                        LegalEntityName = "Legal Entity 1",
-                        TransferSendingEmployerAccountId = 67890,
-                        StopDate = DateTime.UtcNow.AddMonths(-6),
-                        Priority = 1,
-                        Status = ApprenticeshipStatus.Active,
-                        IsLevyPayer = true,
-                        ApprenticeshipPriceEpisodes = new List<ApprenticeshipPriceEpisodeModel>
-                        {
-                            new ApprenticeshipPriceEpisodeModel { /* Initialize properties */ }
-                        },
-                        ApprenticeshipEmployerType = ApprenticeshipEmployerType.Levy,
-                        ApprenticeshipPauses = new List<ApprenticeshipPauseModel>
-                        {
-                            new ApprenticeshipPauseModel { /* Initialize properties */ }
-                        },
-                        CreationDate = DateTimeOffset.UtcNow.AddDays(-30)
-                    },
-                    new ApprenticeshipModel
-                    {
-                        Id = 2,
-                        AccountId = 54321,
-                        AgreementId = "AG456",
-                        AgreedOnDate = DateTime.UtcNow.AddDays(-15),
-                        Uln = 1234567890,
-                        Ukprn = 87654321,
-                        EstimatedStartDate = DateTime.UtcNow.AddMonths(-2),
-                        EstimatedEndDate = DateTime.UtcNow.AddMonths(10),
-                        StandardCode = 456,
-                        ProgrammeType = 2,
-                        FrameworkCode = 789,
-                        PathwayCode = 123,
-                        LegalEntityName = "Legal Entity 2",
-                        TransferSendingEmployerAccountId = 98765,
-                        StopDate = DateTime.UtcNow.AddMonths(-5),
-                        Priority = 2,
-                        Status = ApprenticeshipStatus.Paused,
-                        IsLevyPayer = false,
-                        ApprenticeshipPriceEpisodes = new List<ApprenticeshipPriceEpisodeModel>
-                        {
-                            new ApprenticeshipPriceEpisodeModel { /* Initialize properties */ }
-                        },
-                        ApprenticeshipEmployerType = ApprenticeshipEmployerType.NonLevy,
-                        ApprenticeshipPauses = new List<ApprenticeshipPauseModel>
-                        {
-                            new ApprenticeshipPauseModel { /* Initialize properties */ }
-                        },
-                        CreationDate = DateTimeOffset.UtcNow.AddDays(-25)
-                    }
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Active, CreationDate = DateTime.Now },
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Active, CreationDate = DateTime.Now },
+                    new Model.Core.Entities.ApprenticeshipModel { CreationDate = DateTime.Now }, //status doesn't matter anymore, assert query mirrors this
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Active, CreationDate = DateTime.Now.AddDays(-31) },
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Stopped, StopDate = DateTime.Now },
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Stopped, StopDate = DateTime.Now.AddDays(-31) },
+                    new Model.Core.Entities.ApprenticeshipModel { StopDate = DateTime.Now.AddDays(-31) },
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Paused, ApprenticeshipPauses = new List<ApprenticeshipPauseModel>{ new ApprenticeshipPauseModel{ PauseDate = DateTime.Now, ResumeDate = null } }},
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Paused, ApprenticeshipPauses = new List<ApprenticeshipPauseModel>{ new ApprenticeshipPauseModel{ PauseDate = DateTime.Now, ResumeDate = null } }},
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Paused, ApprenticeshipPauses = new List<ApprenticeshipPauseModel>{ new ApprenticeshipPauseModel{ PauseDate = DateTime.Now, ResumeDate = null } }},
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Paused, CreationDate = DateTime.Now },
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Paused, ApprenticeshipPauses = new List<ApprenticeshipPauseModel>{ new ApprenticeshipPauseModel{ PauseDate = DateTime.Now, ResumeDate = DateTime.Now } }},
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Paused, ApprenticeshipPauses = new List<ApprenticeshipPauseModel>{ new ApprenticeshipPauseModel{ PauseDate = DateTime.Now.AddDays(-31), ResumeDate = null } }},
+                    new Model.Core.Entities.ApprenticeshipModel { Status = ApprenticeshipStatus.Inactive, ApprenticeshipPauses = new List<ApprenticeshipPauseModel>{ new ApprenticeshipPauseModel{ PauseDate = DateTime.Now, ResumeDate = null } }}
                 };
 
-                context.Apprenticeship.AddRange(apprenticeships);
+                context.Apprenticeship.AddRange(paymentsApprenticeships);
                 context.SaveChanges();
             }
         }
