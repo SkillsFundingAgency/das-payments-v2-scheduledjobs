@@ -1,8 +1,6 @@
-﻿using Microsoft.ApplicationInsights.Channel;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.ScheduledJobs.V1.DataContext;
