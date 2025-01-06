@@ -39,7 +39,7 @@
         public string PreviousAcademicYearCollectionPeriod { get; set; }
         public string PerviousAcademicYear { get; set; }
         public string LogLevel { get; set; }
-        public string PreviousAcademicYear { get; }
+        public string PreviousAcademicYear { get; set; }
     }
 
     public class Connectionstrings
