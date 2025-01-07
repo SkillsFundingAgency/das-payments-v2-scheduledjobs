@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Core;
+using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
 using SFA.DAS.Payments.ScheduledJobs.V1.Common;
 using SFA.DAS.Payments.ScheduledJobs.V1.Configuration;
@@ -18,16 +19,19 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
         private readonly ILogger<AuditDataCleanUpService> _logger;
         private readonly IAppsettingsOptions _settings;
         private readonly IServiceBusClientHelper _serviceBusClientHelper;
+        private readonly IAuditDataCleanUpDataservice _auditDataCleanUpDataservice;
 
         public AuditDataCleanUpService(IPaymentsDataContext dataContext
             , ILogger<AuditDataCleanUpService> paymentLogger
             , IAppsettingsOptions settings
-            , IServiceBusClientHelper serviceBusClientHelper)
+            , IServiceBusClientHelper serviceBusClientHelper,
+              IAuditDataCleanUpDataservice auditDataCleanUpDataservice)
         {
             _PaymentDataContext = dataContext;
             _logger = paymentLogger;
             _settings = settings;
             _serviceBusClientHelper = serviceBusClientHelper;
+            _auditDataCleanUpDataservice = auditDataCleanUpDataservice;
         }
 
         public async Task<AuditDataCleanUpBinding> TriggerAuditDataCleanUp()
@@ -36,10 +40,10 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
             if (!string.IsNullOrWhiteSpace(_settings.Values.PreviousAcademicYearCollectionPeriod) && !string.IsNullOrWhiteSpace(_settings.Values.PreviousAcademicYear))
             {
-                previousSubmissionJobsToBeDeletedBatches = await GetSubmissionJobsToBeDeletedBatches(_settings.Values.PreviousAcademicYearCollectionPeriod, _settings.Values.PreviousAcademicYear);
+                previousSubmissionJobsToBeDeletedBatches = await _auditDataCleanUpDataservice.GetSubmissionJobsToBeDeletedBatches(_settings.Values.PreviousAcademicYearCollectionPeriod, _settings.Values.PreviousAcademicYear);
             }
 
-            var currentSubmissionJobsToBeDeletedBatches = await GetSubmissionJobsToBeDeletedBatches(_settings.Values.CurrentCollectionPeriod, _settings.Values.CurrentAcademicYear);
+            var currentSubmissionJobsToBeDeletedBatches = await _auditDataCleanUpDataservice.GetSubmissionJobsToBeDeletedBatches(_settings.Values.CurrentCollectionPeriod, _settings.Values.CurrentAcademicYear);
 
             var submissionJobsToBeDeletedBatches = previousSubmissionJobsToBeDeletedBatches.Union(currentSubmissionJobsToBeDeletedBatches);
             var submissionJobsToBeDeletedBatchesList = submissionJobsToBeDeletedBatches.ToList();
@@ -230,42 +234,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.Services
 
             _logger.LogInformation($"DELETED {dataLockEventCount} DataLockEvents for JobIds {paramValues}");
         }
-
-        private async Task<IEnumerable<SubmissionJobsToBeDeletedBatch>> GetSubmissionJobsToBeDeletedBatches(string collectionPeriod, string academicYear)
-        {
-            // ReSharper disable once ConvertToConstant.Local
-            var selectJobsToBeDeleted = @"
-                IF OBJECT_ID('tempdb..#JobDataToBeDeleted') IS NOT NULL DROP TABLE #JobDataToBeDeleted;
-
-                SELECT JobId INTO #JobDataToBeDeleted FROM Payments2.EarningEvent
-                WHERE CollectionPeriod = @collectionPeriod AND AcademicYear = @academicYear
-                UNION
-                SELECT JobId FROM Payments2.RequiredPaymentEvent
-                WHERE CollectionPeriod = @collectionPeriod AND AcademicYear = @academicYear
-                UNION
-                SELECT JobId FROM Payments2.FundingSourceEvent
-                WHERE CollectionPeriod = @collectionPeriod AND AcademicYear = @academicYear
-                UNION
-                SELECT JobId FROM Payments2.DataLockEvent
-                WHERE CollectionPeriod = @collectionPeriod AND AcademicYear = @academicYear;
-
-                -- keep all successful Jobs, 
-                DELETE FROM #JobDataToBeDeleted WHERE JobId IN ( SELECT DcJobId FROM Payments2.LatestSuccessfulJobs );
-
-                -- and Keep all in progress and Timed-out and Failed on DC Jobs
-                DELETE FROM #JobDataToBeDeleted WHERE JobId IN ( SELECT DcJobId FROM Payments2.Job WHERE [Status] in (1, 4, 5) );
-
-                -- and any jobs completed on our side but DC status is unknown
-                DELETE FROM #JobDataToBeDeleted WHERE JobId IN ( SELECT DcJobId FROM Payments2.Job Where [Status] in (2, 3) AND Dcjobsucceeded IS NULL);
-
-                SELECT JobId AS DcJobId FROM #JobDataToBeDeleted";
-
-            return (await _PaymentDataContext.SubmissionJobsToBeDeleted
-                    .FromSqlRaw(selectJobsToBeDeleted,
-                        new SqlParameter("collectionPeriod", collectionPeriod),
-                        new SqlParameter("academicYear", academicYear))
-                    .ToListAsync())
-                .ToBatch(100);
-        }
+                
     }
 }

@@ -119,7 +119,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
             services.AddScoped<IDasLevyAccountApiWrapper, DasLevyAccountApiWrapper>();
             services.AddScoped<ILevyAccountValidationService, LevyAccountValidationService>();
             services.AddScoped<IExecutionContext, ESFA.DC.Logging.ExecutionContext>();
-
+            services.AddScoped<IAuditDataCleanUpDataservice, AuditDataCleanUpDataservice>();
 
             // Register FluentValidation validators
             services.AddTransient<IValidator<LevyAccountsDto>, LevyAccountValidator>();

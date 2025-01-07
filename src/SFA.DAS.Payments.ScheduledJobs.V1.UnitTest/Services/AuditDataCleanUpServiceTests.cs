@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic;
 using Moq;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Model.Core.Audit;
+using SFA.DAS.Payments.ScheduledJobs.V1.Bindings;
 using SFA.DAS.Payments.ScheduledJobs.V1.Configuration;
+using SFA.DAS.Payments.ScheduledJobs.V1.DTOS;
 using SFA.DAS.Payments.ScheduledJobs.V1.ServiceBus;
 using SFA.DAS.Payments.ScheduledJobs.V1.Services;
 
@@ -17,6 +20,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.UnitTest.Services
         private Mock<IAppsettingsOptions> _mockSettings;
         private Mock<IServiceBusClientHelper> _mockServiceBusClientHelper;
         private IPaymentsDataContext _paymentsDataContext;
+        private Mock<IAuditDataCleanUpDataservice> _auditDataCleanUpDataserviceMock;
 
         [SetUp]
         public void SetUp()
@@ -24,46 +28,14 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.UnitTest.Services
             _mockLogger = new Mock<ILogger<AuditDataCleanUpService>>();
             _mockSettings = new Mock<IAppsettingsOptions>();
             _mockServiceBusClientHelper = new Mock<IServiceBusClientHelper>();
-
+            _auditDataCleanUpDataserviceMock = new Mock<IAuditDataCleanUpDataservice>();
             var options = new DbContextOptionsBuilder<PaymentsDataContext>()
                 .UseInMemoryDatabase(databaseName: "PaymentsDatabase")
                 .Options;
 
             _paymentsDataContext = new PaymentsDataContext(options);
-
-            SeedData();
         }
 
-        private void SeedData()
-        {
-            // Add test data to the in-memory database
-            _paymentsDataContext.EarningEvent.AddRange(
-                new EarningEventModel { Ukprn = 22, StartDate = DateAndTime.Now }
-            );
-            _paymentsDataContext.RequiredPaymentEvent.AddRange(
-                new RequiredPaymentEventModel
-                {
-                    Ukprn = 22,
-                    StartDate = DateAndTime.Now,
-                    LearnerReferenceNumber = "12345",
-                    LearningAimFundingLineType = "TypeA",
-                    LearningAimReference = "Ref123",
-                    PriceEpisodeIdentifier = "Episode1"
-                }
-            );
-            _paymentsDataContext.DataLockgEvent.AddRange(
-                new DataLockEventModel
-                {
-                    Ukprn = 22,
-                    StartDate = DateAndTime.Now,
-                    LearnerReferenceNumber = "12345",
-                    LearningAimFundingLineType = "TypeA",
-                    LearningAimReference = "Ref123"
-                }
-            );
-
-            _paymentsDataContext.SaveChanges();
-        }
 
         [Test]
         public async Task TriggerAuditDataCleanUp_ShouldLogInformation()
@@ -75,12 +47,52 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.UnitTest.Services
                 CurrentAcademicYear = "2021/22"
             });
 
-            var service = new AuditDataCleanUpService(_paymentsDataContext, _mockLogger.Object, _mockSettings.Object, _mockServiceBusClientHelper.Object);
+            var jobjsToBeDeleted = new List<SubmissionJobsToBeDeletedBatch>
+            {
+                new SubmissionJobsToBeDeletedBatch
+                {
+                    JobsToBeDeleted = new[] { new SubmissionJobsToBeDeletedModel { DcJobId = 1 } }
+                }
+            };
+
+            _auditDataCleanUpDataserviceMock.Setup(a => a.GetSubmissionJobsToBeDeletedBatches(It.IsAny<string>(), It.IsAny<string>()).Result)
+                .Returns(jobjsToBeDeleted);
+
+            var service = new AuditDataCleanUpService(_paymentsDataContext,
+                _mockLogger.Object,
+                _mockSettings.Object,
+                _mockServiceBusClientHelper.Object,
+                _auditDataCleanUpDataserviceMock.Object);
 
             // Act
             var result = await service.TriggerAuditDataCleanUp();
 
             // Assert
+            result.FundingSource.Should().NotBeNull();
+            result.FundingSource.Should().BeOfType<FundingSourceAuditData>();
+            result.FundingSource.JobsToBeDeleted.Should().NotBeNull();
+            result.FundingSource.JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
+            result.FundingSource.JobsToBeDeleted.First().DcJobId.Should().Be(1);
+
+            result.DataLock.Should().NotBeNull();
+            result.DataLock.Should().BeOfType<DataLockAuditData>();
+            result.DataLock.JobsToBeDeleted.Should().NotBeNull();
+            result.DataLock.JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
+            result.DataLock.JobsToBeDeleted.First().DcJobId.Should().Be(1);
+
+            result.EarningAudit.Should().NotBeNull();
+            result.EarningAudit.Should().BeOfType<EarningAuditData>();
+            result.EarningAudit.JobsToBeDeleted.Should().NotBeNull();
+            result.EarningAudit.JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
+            result.EarningAudit.JobsToBeDeleted.First().DcJobId.Should().Be(1);
+
+
+            result.RequiredPayments.Should().NotBeNull();
+            result.RequiredPayments.Should().BeOfType<RequiredPaymentAuditData>();
+            result.RequiredPayments.JobsToBeDeleted.Should().NotBeNull();
+            result.RequiredPayments.JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
+            result.RequiredPayments.JobsToBeDeleted.First().DcJobId.Should().Be(1);
+
             _mockLogger.Verify(
                 logger => logger.Log(
                     It.Is<LogLevel>(logLevel => logLevel == LogLevel.Information),
