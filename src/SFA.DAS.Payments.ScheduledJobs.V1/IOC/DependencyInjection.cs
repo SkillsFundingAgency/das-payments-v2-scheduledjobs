@@ -125,11 +125,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.V1.IOC
             services.AddTransient<IValidator<LevyAccountsDto>, LevyAccountValidator>();
             services.AddTransient<IValidator<CombinedLevyAccountsDto>, CombinedLevyAccountValidator>();
 
-
-
-            //services.AddScoped<IPaymentsDataContext, PaymentsDataContext>();
-            //services.AddScoped<ICommitmentsDataContext, CommitmentsDataContext>();
-
             return services;
         }
 
