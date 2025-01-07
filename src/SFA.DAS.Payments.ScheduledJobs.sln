@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.ScheduledJobs", "SFA.DAS.Payments.ScheduledJobs\SFA.DAS.Payments.ScheduledJobs.csproj", "{02B7C45A-D617-4520-827D-23C21F34EE5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.ScheduledJobs.UnitTest", "SFA.DAS.Payments.ScheduledJobs.UnitTest\SFA.DAS.Payments.ScheduledJobs.UnitTest.csproj", "{D1F31782-4D0B-4634-BCE6-D8ED89751A19}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Payments.ScheduledJobs.UnitTests", "SFA.DAS.Payments.ScheduledJobs.UnitTests\SFA.DAS.Payments.ScheduledJobs.UnitTests.csproj", "{D1F31782-4D0B-4634-BCE6-D8ED89751A19}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
