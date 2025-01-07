@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "SFA.DAS.Payments.ScheduledJobs.V1": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7004",
-      "launchBrowser": false
-    }
-  }
-}

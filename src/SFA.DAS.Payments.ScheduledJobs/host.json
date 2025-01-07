@@ -1,21 +1,17 @@
 {
-  "version": "2.0",
-  "functionTimeout": "00:10:00",
-  "extensions": {
-    "serviceBus": {
-      "prefetchCount": 1,
-      "messageHandlerOptions": {
-        "maxConcurrentCalls": 1,
-        "maxAutoRenewDuration": "00:10:00"
-      }
+    "version": "2.0",
+    "logging": {
+        "applicationInsights": {
+            "samplingSettings": {
+                "isEnabled": true,
+                "excludedTypes": "Request"
+            },
+            "enableLiveMetricsFilters": true
+        }
+    },
+    "extensions": {
+        "serviceBus": {
+            "transportType": "amqpWebSockets"
+        }
     }
-  },
-  "logging": {
-    "applicationInsights": {
-      "samplingSettings": {
-        "isEnabled": true,
-        "excludedTypes": "Request"
-      }
-    }
-  }
 }

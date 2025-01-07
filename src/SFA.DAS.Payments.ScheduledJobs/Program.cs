@@ -1,26 +1,33 @@
-using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SFA.DAS.Payments.ScheduledJobs.IOC;
 
 
 var host = new HostBuilder()
-    .ConfigureAppConfiguration(config =>
+    .ConfigureFunctionsWebApplication()
+    .ConfigureAppConfiguration((context, config) =>
     {
-#if DEBUG
-        config.AddJsonFile("local.settings.json", optional: true);
-#endif
-    })/*.UseServiceProviderFactory(new AutofacServiceProviderFactory())
-    .ConfigureContainer<ContainerBuilder>(builder =>
-    {
-        builder.RegisterModule(new TelemetryModule());
-        builder.RegisterModule(new LoggingModule());
-        builder.RegisterModule(new FunctionsModule());
-        builder.RegisterModule(new LevyAccountValidationModule());
+        //string currentDirectory = Directory.GetCurrentDirectory();
+        //string settingsFilePath = Path.Combine(currentDirectory, "local.settings.json");
+        //config.AddJsonFile(settingsFilePath, optional: true, reloadOnChange: true);
+    })
+     .ConfigureServices((context, services) =>
+     {
+         services.AddApplicationInsightsTelemetryWorkerService();
+         services.ConfigureFunctionsApplicationInsights();
 
-        builder.RegisterModule(new Modules.PaymentDataContextModule());
-        builder.RegisterModule(new CommitmentsDataContextModule());
-        builder.RegisterModule(new Modules.ConfigurationModule());
-        builder.RegisterModule(new Modules.MessagingModule());
-    })*/
-    .Build();
+
+         services.AddPaymentDatabaseContext(context.Configuration);
+         services.AddCommitmentsDataContext(context.Configuration);
+
+         services.AddAppsettingsConfiguration();
+         services.AddScopedServices();
+         services.AddSingletonServices();
+
+         services.AddAccountApiConfiguration(context.Configuration);
+         services.AddApplicationLoggerSettings();
+         services.ConfigureServiceBusConfiguration(context.Configuration);
+     }).Build();
 
 host.Run();
