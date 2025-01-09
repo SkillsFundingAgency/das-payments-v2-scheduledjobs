@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using SFA.DAS.Payments.Core.Configuration;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Configuration
 {

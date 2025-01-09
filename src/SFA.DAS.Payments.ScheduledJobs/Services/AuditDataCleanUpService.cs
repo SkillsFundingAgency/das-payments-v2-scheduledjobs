@@ -2,13 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Core;
 using SFA.DAS.Payments.ScheduledJobs.Bindings;
 using SFA.DAS.Payments.ScheduledJobs.Common;
-using SFA.DAS.Payments.ScheduledJobs.Configuration;
-using SFA.DAS.Payments.ScheduledJobs.DTOS;
-using SFA.DAS.Payments.ScheduledJobs.ServiceBus;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Services
 {

@@ -1,7 +1,5 @@
 ﻿using System.Globalization;
 using FluentValidation;
-using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
-using SFA.DAS.Payments.ScheduledJobs.DTOS;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Validator
 {

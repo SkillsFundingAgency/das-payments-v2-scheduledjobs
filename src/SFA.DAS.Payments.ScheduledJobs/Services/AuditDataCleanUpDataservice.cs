@@ -1,9 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.ScheduledJobs.Common;
-using SFA.DAS.Payments.ScheduledJobs.DTOS;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Services
 {

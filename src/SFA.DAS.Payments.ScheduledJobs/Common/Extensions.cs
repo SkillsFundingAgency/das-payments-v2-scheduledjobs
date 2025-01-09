@@ -1,7 +1,6 @@
 ﻿
 using Microsoft.Data.SqlClient;
 using SFA.DAS.Payments.Model.Core.Audit;
-using SFA.DAS.Payments.ScheduledJobs.DTOS;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Common
 {

@@ -6,19 +6,8 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.EAS.Account.Api.Client;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
-using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
-using SFA.DAS.Payments.Application.Repositories;
-using SFA.DAS.Payments.Core.Configuration;
-using SFA.DAS.Payments.ScheduledJobs.Configuration;
-using SFA.DAS.Payments.ScheduledJobs.DataContext;
-using SFA.DAS.Payments.ScheduledJobs.DTOS;
-using SFA.DAS.Payments.ScheduledJobs.ServiceBus;
-using SFA.DAS.Payments.ScheduledJobs.Services;
-using SFA.DAS.Payments.ScheduledJobs.Validator;
 
-namespace SFA.DAS.Payments.ScheduledJobs.IOC
+namespace SFA.DAS.Payments.ScheduledJobs.Ioc
 {
     public static class DependencyInjection
     {

@@ -1,6 +1,6 @@
 ﻿using SFA.DAS.Payments.Model.Core.Entities;
 
-namespace SFA.DAS.Payments.ScheduledJobs.DTOS
+namespace SFA.DAS.Payments.ScheduledJobs.Dtos
 {
     public class LevyAccountsDto
     {

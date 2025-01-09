@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
-using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Model.Core.Entities;
-using SFA.DAS.Payments.ScheduledJobs.DataContext;
 using SFA.DAS.Payments.ScheduledJobs.Enums;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Services

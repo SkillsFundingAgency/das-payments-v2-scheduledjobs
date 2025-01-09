@@ -1,10 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
-using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.ScheduledJobs.Common;
-using SFA.DAS.Payments.ScheduledJobs.DTOS;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Services
 {

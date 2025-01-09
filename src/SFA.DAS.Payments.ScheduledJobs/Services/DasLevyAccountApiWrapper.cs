@@ -1,9 +1,6 @@
-﻿using SFA.DAS.EAS.Account.Api.Client;
-using SFA.DAS.EAS.Account.Api.Types;
-using SFA.DAS.Payments.Application.Infrastructure.Logging;
+﻿using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.ScheduledJobs.Common;
-using SFA.DAS.Payments.ScheduledJobs.Configuration;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Services
 {

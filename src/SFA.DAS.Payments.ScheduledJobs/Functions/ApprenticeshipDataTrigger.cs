@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Payments.ScheduledJobs.Services;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Functions
 {

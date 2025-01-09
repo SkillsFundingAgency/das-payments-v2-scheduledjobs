@@ -2,8 +2,6 @@ using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using SFA.DAS.Payments.ScheduledJobs.DTOS;
-using SFA.DAS.Payments.ScheduledJobs.Services;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Functions
 {

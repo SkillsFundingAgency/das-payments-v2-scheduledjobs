@@ -1,7 +1,7 @@
 ﻿using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.ScheduledJobs.Common;
 
-namespace SFA.DAS.Payments.ScheduledJobs.DTOS
+namespace SFA.DAS.Payments.ScheduledJobs.Dtos
 {
     public class CombinedLevyAccountsDto
     {

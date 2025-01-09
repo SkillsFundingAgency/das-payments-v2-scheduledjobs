@@ -1,10 +1,5 @@
-﻿using System.Collections.Generic;
-using FluentValidation.TestHelper;
-using Moq;
-using NUnit.Framework;
-using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
+﻿using SFA.DAS.Payments.Application.Infrastructure.Telemetry;
 using SFA.DAS.Payments.Model.Core.Entities;
-using SFA.DAS.Payments.ScheduledJobs.DTOS;
 using SFA.DAS.Payments.ScheduledJobs.Validator;
 
 namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Validator

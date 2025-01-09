@@ -1,14 +1,14 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SFA.DAS.Payments.ScheduledJobs.IOC;
+using SFA.DAS.Payments.ScheduledJobs.Ioc;
 
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .ConfigureAppConfiguration((context, config) =>
     {
-       
+
     })
      .ConfigureServices((context, services) =>
      {
