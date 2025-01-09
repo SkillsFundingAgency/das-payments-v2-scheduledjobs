@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -33,23 +34,22 @@ namespace SFA.DAS.Payments.ScheduledJobs.Functions
 
         [Function("HttpTriggerAuditDataCleanUp")]
         public async Task<AuditDataCleanUpBinding> HttpTriggerAuditDataCleanUp(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "TriggerAuditDataCleanUp")] HttpRequestData httpRequest)
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "TriggerAuditDataCleanUp")] HttpRequest httpRequest)
         {
-            var response = httpRequest.CreateResponse();
-
+            var response = httpRequest.HttpContext.Response;
             try
             {
                 var result = await _auditDataCleanUpService.TriggerAuditDataCleanUp();
 
                 if (result != null)
                 {
-                    response.StatusCode = HttpStatusCode.OK;
-                    await response.WriteStringAsync("Request processed successfully");
+                    response.StatusCode = (int)HttpStatusCode.OK;
+                    await response.WriteAsync("Request processed successfully");
                 }
                 else
                 {
-                    response.StatusCode = HttpStatusCode.BadRequest;
-                    await response.WriteStringAsync("No DCJobIds found for processing.");
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    await response.WriteAsync("No DCJobIds found for processing.");
                 }
 
                 return result;
@@ -58,8 +58,8 @@ namespace SFA.DAS.Payments.ScheduledJobs.Functions
             {
                 string errorMessage = $"An error occurred while processing the request. {ex.Message}";
                 _logger.LogError(errorMessage);
-                response.StatusCode = HttpStatusCode.InternalServerError;
-                await response.WriteStringAsync(errorMessage);
+                response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                await response.WriteAsync(errorMessage);
             }
 
             return null;
