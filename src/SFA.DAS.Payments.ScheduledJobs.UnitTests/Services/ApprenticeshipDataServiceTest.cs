@@ -1,12 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.ScheduledJobs.DataContext;
 using SFA.DAS.Payments.ScheduledJobs.Enums;
 using SFA.DAS.Payments.ScheduledJobs.Models;
-using SFA.DAS.Payments.ScheduledJobs.Services;
 using ITelemetry = SFA.DAS.Payments.Application.Infrastructure.Telemetry.ITelemetry;
 
 namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services

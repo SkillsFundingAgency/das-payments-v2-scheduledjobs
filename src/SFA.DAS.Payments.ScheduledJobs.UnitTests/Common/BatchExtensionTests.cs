@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using SFA.DAS.Payments.Model.Core.Audit;
+﻿using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ScheduledJobs.Common;
 
 namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Common

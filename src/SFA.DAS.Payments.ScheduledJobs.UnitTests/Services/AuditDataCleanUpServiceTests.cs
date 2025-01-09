@@ -1,15 +1,9 @@
-﻿using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
-using Moq;
+﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Model.Core.Audit;
-using SFA.DAS.Payments.ScheduledJobs.Bindings;
 using SFA.DAS.Payments.ScheduledJobs.Configuration;
 using SFA.DAS.Payments.ScheduledJobs.DTOS;
 using SFA.DAS.Payments.ScheduledJobs.ServiceBus;
-using SFA.DAS.Payments.ScheduledJobs.Services;
 
 namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
 {

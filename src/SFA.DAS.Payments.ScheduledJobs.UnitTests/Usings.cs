@@ -1,1 +1,10 @@
+global using System.Net;
+global using FluentAssertions;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.Azure.Functions.Worker;
+global using Microsoft.Extensions.Logging;
+global using Moq;
 global using NUnit.Framework;
+global using SFA.DAS.Payments.ScheduledJobs.Bindings;
+global using SFA.DAS.Payments.ScheduledJobs.Functions;
+global using SFA.DAS.Payments.ScheduledJobs.Services;

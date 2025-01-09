@@ -1,15 +1,10 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
-using Moq;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.Application.Repositories;
-using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.ScheduledJobs.DTOS;
-using SFA.DAS.Payments.ScheduledJobs.Services;
-using SFA.DAS.Payments.ScheduledJobs.Validator;
 
 namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
 {

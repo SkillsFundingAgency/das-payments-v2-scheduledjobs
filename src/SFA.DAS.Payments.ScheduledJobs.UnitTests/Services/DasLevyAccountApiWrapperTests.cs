@@ -1,10 +1,7 @@
-﻿using FluentAssertions;
-using Moq;
-using SFA.DAS.EAS.Account.Api.Client;
+﻿using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Payments.Application.Infrastructure.Logging;
 using SFA.DAS.Payments.ScheduledJobs.Configuration;
-using SFA.DAS.Payments.ScheduledJobs.Services;
 
 namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
 {

@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Core;
-using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ScheduledJobs.Bindings;
 using SFA.DAS.Payments.ScheduledJobs.Common;
 using SFA.DAS.Payments.ScheduledJobs.Configuration;
@@ -47,7 +46,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 
             var submissionJobsToBeDeletedBatches = previousSubmissionJobsToBeDeletedBatches.Union(currentSubmissionJobsToBeDeletedBatches);
             var submissionJobsToBeDeletedBatchesList = submissionJobsToBeDeletedBatches.ToList();
-            
+
             _logger.LogInformation($"Triggering Audit Data Cleanup for {submissionJobsToBeDeletedBatchesList.Count} submission job batches. " +
                                   $"DCJobIds: {string.Join(",", submissionJobsToBeDeletedBatchesList.SelectMany(x => x.JobsToBeDeleted.Select(y => y.DcJobId)))}");
 
@@ -234,6 +233,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 
             _logger.LogInformation($"DELETED {dataLockEventCount} DataLockEvents for JobIds {paramValues}");
         }
-                
+
     }
 }

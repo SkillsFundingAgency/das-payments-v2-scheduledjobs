@@ -1,11 +1,4 @@
-﻿using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using Moq;
-using SFA.DAS.Payments.ScheduledJobs.Bindings;
-using SFA.DAS.Payments.ScheduledJobs.Services;
-
-
-namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
+﻿namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
 {
     [TestFixture]
     public class LevyAccountImportServiceTests

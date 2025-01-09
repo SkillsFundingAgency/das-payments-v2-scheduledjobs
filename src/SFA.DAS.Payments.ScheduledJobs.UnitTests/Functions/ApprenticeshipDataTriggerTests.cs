@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Moq;
-using SFA.DAS.Payments.ScheduledJobs.Functions;
-using SFA.DAS.Payments.ScheduledJobs.Services;
-
-namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Functions
+﻿namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Functions
 {
     [TestFixture]
     public class ApprenticeshipDataTriggerTests

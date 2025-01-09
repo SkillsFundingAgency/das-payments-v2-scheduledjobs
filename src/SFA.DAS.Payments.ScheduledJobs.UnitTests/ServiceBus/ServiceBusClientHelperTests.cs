@@ -1,6 +1,4 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Microsoft.Extensions.Logging;
-using Moq;
 using Polly;
 using Polly.Retry;
 using SFA.DAS.Payments.ScheduledJobs.ServiceBus;
