@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Moq;
 using SFA.DAS.Payments.ScheduledJobs.Bindings;
@@ -84,5 +85,30 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Functions
             response.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
             result.Should().BeNull();
         }
+
+        [Test]
+        public async Task Run_Should_Call_AuditDataCleanUpTimertrigger()
+        {
+            // Arrange
+            TimerInfo timerInfo = new TimerInfo();
+            timerInfo.ScheduleStatus = new ScheduleStatus();
+
+            var auditDataCleanUpBinding = new AuditDataCleanUpBinding();
+            _mockAuditDataCleanUpService.Setup(x => x.TriggerAuditDataCleanUp())
+                                .ReturnsAsync(new AuditDataCleanUpBinding
+                                {
+                                    DataLock = new DataLockAuditData(),
+                                    EarningAudit = new EarningAuditData(),
+                                    FundingSource = new FundingSourceAuditData(),
+                                    RequiredPayments = new RequiredPaymentAuditData()
+                                });
+
+            // Act
+            var result = await _function.AuditDataCleanUp(timerInfo);
+
+            // Assert
+            _mockAuditDataCleanUpService.Verify(x => x.TriggerAuditDataCleanUp(), Times.Once);
+        }
+
     }
 }
