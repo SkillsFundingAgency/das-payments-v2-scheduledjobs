@@ -8,9 +8,7 @@ var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .ConfigureAppConfiguration((context, config) =>
     {
-        //string currentDirectory = Directory.GetCurrentDirectory();
-        //string settingsFilePath = Path.Combine(currentDirectory, "local.settings.json");
-        //config.AddJsonFile(settingsFilePath, optional: true, reloadOnChange: true);
+       
     })
      .ConfigureServices((context, services) =>
      {
