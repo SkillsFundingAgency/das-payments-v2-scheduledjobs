@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.Payments.ScheduledJobs.Configuration
 {
-    public interface IAppsettingsOptions
+    public interface IAppSettingsOptions
     {
         Connectionstrings ConnectionStrings { get; set; }
         bool IsEncrypted { get; set; }

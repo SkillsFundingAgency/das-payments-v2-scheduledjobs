@@ -24,7 +24,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.IOC
     {
         public static IServiceCollection AddAppsettingsConfiguration(this IServiceCollection services)
         {
-            services.AddSingleton<IAppsettingsOptions>(provider =>
+            services.AddSingleton<IAppSettingsOptions>(provider =>
             {
                 var configHelper = provider.GetRequiredService<IConfiguration>();
 

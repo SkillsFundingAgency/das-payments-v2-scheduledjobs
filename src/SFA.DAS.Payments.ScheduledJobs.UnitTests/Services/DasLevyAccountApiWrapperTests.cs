@@ -10,7 +10,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
     {
         private Mock<IAccountApiClient> _mockAccountApiClient;
         private Mock<IPaymentLogger> _mockLogger;
-        private Mock<IAppsettingsOptions> _mockSettings;
+        private Mock<IAppSettingsOptions> _mockSettings;
         private DasLevyAccountApiWrapper _dasLevyAccountApiWrapper;
 
         private readonly PagedApiResponseViewModel<AccountWithBalanceViewModel> _apiResponseViewModel = new PagedApiResponseViewModel<AccountWithBalanceViewModel>
@@ -34,7 +34,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
         {
             _mockAccountApiClient = new Mock<IAccountApiClient>();
             _mockLogger = new Mock<IPaymentLogger>();
-            _mockSettings = new Mock<IAppsettingsOptions>();
+            _mockSettings = new Mock<IAppSettingsOptions>();
 
             _mockSettings.Setup(s => s.Values).Returns(new Values
             {

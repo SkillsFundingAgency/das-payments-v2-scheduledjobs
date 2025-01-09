@@ -16,13 +16,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
     {
         private readonly IPaymentsDataContext _PaymentDataContext;
         private readonly ILogger<AuditDataCleanUpService> _logger;
-        private readonly IAppsettingsOptions _settings;
+        private readonly IAppSettingsOptions _settings;
         private readonly IServiceBusClientHelper _serviceBusClientHelper;
         private readonly IAuditDataCleanUpDataservice _auditDataCleanUpDataservice;
 
         public AuditDataCleanUpService(IPaymentsDataContext dataContext
             , ILogger<AuditDataCleanUpService> paymentLogger
-            , IAppsettingsOptions settings
+            , IAppSettingsOptions settings
             , IServiceBusClientHelper serviceBusClientHelper,
               IAuditDataCleanUpDataservice auditDataCleanUpDataservice)
         {

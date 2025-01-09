@@ -11,7 +11,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
     public class AuditDataCleanUpServiceTests
     {
         private Mock<ILogger<AuditDataCleanUpService>> _mockLogger;
-        private Mock<IAppsettingsOptions> _mockSettings;
+        private Mock<IAppSettingsOptions> _mockSettings;
         private Mock<IServiceBusClientHelper> _mockServiceBusClientHelper;
         private IPaymentsDataContext _paymentsDataContext;
         private Mock<IAuditDataCleanUpDataservice> _auditDataCleanUpDataserviceMock;
@@ -20,7 +20,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
         public void SetUp()
         {
             _mockLogger = new Mock<ILogger<AuditDataCleanUpService>>();
-            _mockSettings = new Mock<IAppsettingsOptions>();
+            _mockSettings = new Mock<IAppSettingsOptions>();
             _mockServiceBusClientHelper = new Mock<IServiceBusClientHelper>();
             _auditDataCleanUpDataserviceMock = new Mock<IAuditDataCleanUpDataservice>();
 

@@ -9,13 +9,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 {
     public class DasLevyAccountApiWrapper : IDasLevyAccountApiWrapper
     {
-        private readonly IAppsettingsOptions _appSettings;
+        private readonly IAppSettingsOptions _appSettings;
         private readonly IAccountApiClient _accountApiClient;
         private readonly IPaymentLogger _logger;
 
         public DasLevyAccountApiWrapper(IAccountApiClient accountApiClient
             , IPaymentLogger logger
-            , IAppsettingsOptions settings)
+            , IAppSettingsOptions settings)
         {
             _accountApiClient = accountApiClient ?? throw new ArgumentNullException(nameof(accountApiClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
