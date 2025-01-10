@@ -52,7 +52,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
                         PerviousAcademicYear = configHelper.GetValue<string>("PerviousAcademicYear"),
                         PreviousAcademicYearCollectionPeriod = configHelper.GetValue<string>("PreviousAcademicYearCollectionPeriod"),
                         RequiredPaymentAuditDataCleanUpQueue = configHelper.GetValue<string>("RequiredPaymentAuditDataCleanUpQueue"),
-                        ServiceBusConnectionString = configHelper.GetValue<string>("ServiceBusConnectionString"),
                         ServiceName = configHelper.GetValue<string>("ServiceName"),
                         Version = configHelper.GetValue<string>("Version"),
                         ApprenticeshipValidationSchedule = configHelper.GetValue<string>("ApprenticeshipValidationSchedule"),

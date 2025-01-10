@@ -26,7 +26,6 @@
         public string EndpointName { get; set; }
         public string LevyAccountBalanceEndpoint { get; set; }
         public string ApplicationInsightsInstrumentationKey { get; set; }
-        public string ServiceBusConnectionString { get; set; }
         public string DasNServiceBusLicenseKey { get; set; }
         public string AccountApiBatchSize { get; set; }
         public string AccountApiBaseUrl { get; set; }
