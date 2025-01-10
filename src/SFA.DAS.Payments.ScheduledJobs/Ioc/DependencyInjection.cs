@@ -17,7 +17,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
             {
                 var configHelper = provider.GetRequiredService<IConfiguration>();
 
-                return new AppsettingsOptions
+                return new AppSettingsOptions
                 {
                     IsEncrypted = configHelper.GetValue<bool>("IsEncrypted"),
                     ConnectionStrings = new Connectionstrings

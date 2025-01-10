@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.Payments.ScheduledJobs.Configuration
 {
-    public class AppsettingsOptions : IAppSettingsOptions
+    public class AppSettingsOptions : IAppSettingsOptions
     {
         public bool IsEncrypted { get; set; }
         public Values Values { get; set; }
@@ -26,6 +26,7 @@
         public string EndpointName { get; set; }
         public string LevyAccountBalanceEndpoint { get; set; }
         public string ApplicationInsightsInstrumentationKey { get; set; }
+        public string ServiceBusConnectionString { get; set; }
         public string DasNServiceBusLicenseKey { get; set; }
         public string AccountApiBatchSize { get; set; }
         public string AccountApiBaseUrl { get; set; }
