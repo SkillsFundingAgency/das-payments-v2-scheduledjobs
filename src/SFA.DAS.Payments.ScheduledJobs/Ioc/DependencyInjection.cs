@@ -11,7 +11,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddAppsettingsConfiguration(this IServiceCollection services)
+        public static IServiceCollection AddAppSettingsConfiguration(this IServiceCollection services)
         {
             services.AddSingleton<IAppSettingsOptions>(provider =>
             {
@@ -23,7 +23,8 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
                     ConnectionStrings = new Connectionstrings
                     {
                         ServiceBusConnectionString = configHelper.GetConnectionString("ServiceBusConnectionString"),
-                        CommitmentsConnectionString = configHelper.GetConnectionString("CommitmentsConnectionString")
+                        CommitmentsConnectionString = configHelper.GetConnectionString("CommitmentsConnectionString"),
+                        PaymentsConnectionString = configHelper.GetConnectionString("PaymentsConnectionString")
                     },
                     Values = new Values
                     {
@@ -172,12 +173,12 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
 
         public static IServiceCollection ConfigureServiceBusConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
-            var ServiceBusConnectionString = configuration.GetConnectionString("ServiceBusConnectionString");
-            if (string.IsNullOrEmpty(ServiceBusConnectionString))
+            var serviceBusConnectionString = configuration.GetConnectionString("ServiceBusConnectionString");
+            if (string.IsNullOrEmpty(serviceBusConnectionString))
             {
                 throw new Exception("ServiceBusConnectionString is not set in the configuration");
             }
-            services.AddServiceBusClientHelper(ServiceBusConnectionString);
+            services.AddServiceBusClientHelper(serviceBusConnectionString);
             return services;
         }
 
