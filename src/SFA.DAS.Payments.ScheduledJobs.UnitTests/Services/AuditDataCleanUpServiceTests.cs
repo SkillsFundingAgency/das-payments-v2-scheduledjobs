@@ -4,7 +4,7 @@ using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ScheduledJobs.Configuration;
 using SFA.DAS.Payments.ScheduledJobs.ServiceBus;
 
-namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
+namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Services
 {
     [TestFixture]
     public class AuditDataCleanUpServiceTests
