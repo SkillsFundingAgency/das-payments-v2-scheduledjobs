@@ -8,10 +8,5 @@
             },
             "enableLiveMetricsFilters": true
         }
-    },
-    "extensions": {
-        "serviceBus": {
-            "transportType": "amqpWebSockets"
-        }
     }
 }
