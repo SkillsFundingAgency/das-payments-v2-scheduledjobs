@@ -2,7 +2,7 @@
 {
     public interface IAppSettingsOptions
     {
-        Connectionstrings ConnectionStrings { get; set; }
+        ConnectionStrings ConnectionStrings { get; set; }
         bool IsEncrypted { get; set; }
         Values Values { get; set; }
     }

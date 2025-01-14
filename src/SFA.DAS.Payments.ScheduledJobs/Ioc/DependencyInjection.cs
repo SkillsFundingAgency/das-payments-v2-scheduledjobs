@@ -20,7 +20,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
                 return new AppSettingsOptions
                 {
                     IsEncrypted = configHelper.GetValue<bool>("IsEncrypted"),
-                    ConnectionStrings = new Connectionstrings
+                    ConnectionStrings = new ConnectionStrings
                     {
                         ServiceBusConnectionString = configHelper.GetConnectionString("ServiceBusConnectionString"),
                         CommitmentsConnectionString = configHelper.GetConnectionString("CommitmentsConnectionString"),
@@ -50,7 +50,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
                         LevyAccountSchedule = configHelper.GetValue<string>("LevyAccountSchedule"),
                         LevyAccountValidationSchedule = configHelper.GetValue<string>("LevyAccountValidationSchedule"),
                         LogLevel = configHelper.GetValue<string>("LogLevel"),
-                        PerviousAcademicYear = configHelper.GetValue<string>("PerviousAcademicYear"),
+                        PreviousAcademicYear = configHelper.GetValue<string>("PreviousAcademicYear"),
                         PreviousAcademicYearCollectionPeriod = configHelper.GetValue<string>("PreviousAcademicYearCollectionPeriod"),
                         RequiredPaymentAuditDataCleanUpQueue = configHelper.GetValue<string>("RequiredPaymentAuditDataCleanUpQueue"),
                         ServiceName = configHelper.GetValue<string>("ServiceName"),
@@ -100,7 +100,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
         {
             services.AddScoped<IAuditDataCleanUpService, AuditDataCleanUpService>();
             services.AddScoped<IPaymentLogger, PaymentLogger>();
-            //services.AddScoped<IEndpointInstanceFactory, EndpointInstanceFactory>();
             services.AddScoped<ILevyAccountImportService, LevyAccountImportService>();
             services.AddScoped<IApprenticeshipDataService, ApprenticeshipDataService>();
             services.AddScoped<ITelemetry, ApplicationInsightsTelemetry>();

@@ -4,7 +4,7 @@
     {
         public bool IsEncrypted { get; set; }
         public Values Values { get; set; }
-        public Connectionstrings ConnectionStrings { get; set; }
+        public ConnectionStrings ConnectionStrings { get; set; }
     }
 
     public class Values
@@ -37,12 +37,11 @@
         public string CurrentCollectionPeriod { get; set; }
         public string CurrentAcademicYear { get; set; }
         public string PreviousAcademicYearCollectionPeriod { get; set; }
-        public string PerviousAcademicYear { get; set; }
         public string LogLevel { get; set; }
         public string PreviousAcademicYear { get; set; }
     }
 
-    public class Connectionstrings
+    public class ConnectionStrings
     {
         public string ServiceBusConnectionString { get; set; }
         public string CommitmentsConnectionString { get; set; }
