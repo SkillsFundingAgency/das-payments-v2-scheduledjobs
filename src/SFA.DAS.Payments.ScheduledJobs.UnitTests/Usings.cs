@@ -1,4 +1,3 @@
-global using System.Net;
 global using FluentAssertions;
 global using FluentValidation.TestHelper;
 global using Microsoft.AspNetCore.Http;
@@ -10,3 +9,4 @@ global using SFA.DAS.Payments.ScheduledJobs.Bindings;
 global using SFA.DAS.Payments.ScheduledJobs.Dtos;
 global using SFA.DAS.Payments.ScheduledJobs.Functions;
 global using SFA.DAS.Payments.ScheduledJobs.Services;
+global using System.Net;
