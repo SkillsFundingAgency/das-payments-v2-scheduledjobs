@@ -173,10 +173,10 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
         public static IServiceCollection ConfigureServiceBusConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             var serviceBusConnectionString = configuration.GetConnectionString("ServiceBusConnectionString");
-            //if (string.IsNullOrEmpty(serviceBusConnectionString))
-            //{
-            //    throw new Exception("ServiceBusConnectionString is not set in the configuration");
-            //}
+            if (string.IsNullOrEmpty(serviceBusConnectionString))
+            {
+                throw new Exception("ServiceBusConnectionString is not set in the configuration");
+            }
             services.AddServiceBusClientHelper(serviceBusConnectionString);
             return services;
         }
