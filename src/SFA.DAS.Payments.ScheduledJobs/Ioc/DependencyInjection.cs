@@ -17,6 +17,10 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
             services.AddSingleton<IAppSettingsOptions>(provider =>
             {
                 var configHelper = provider.GetRequiredService<IConfiguration>();
+                if (configHelper == null)
+                {
+                    throw new InvalidOperationException($"IConfiguration is not available in {DependencyInjection.AddAppSettingsConfiguration}");
+                }
 
                 return new AppSettingsOptions
                 {
@@ -131,15 +135,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
         {
             services.AddSingleton<IAccountApiConfiguration>(provider =>
             {
-                var configHelper = provider.GetRequiredService<IConfiguration>();
-
                 return new AccountApiConfiguration
                 {
-                    ApiBaseUrl = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiBaseUrl") : Environment.GetEnvironmentVariable("AccountApiBaseUrl"),
-                    ClientId = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiClientId") : Environment.GetEnvironmentVariable("AccountApiClientId"),
-                    ClientSecret = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiClientSecret") : Environment.GetEnvironmentVariable("AccountApiClientSecret"),
-                    IdentifierUri = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiIdentifierUri") : Environment.GetEnvironmentVariable("AccountApiIdentifierUri"),
-                    Tenant = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiTenant") : Environment.GetEnvironmentVariable("AccountApiTenant")
+                    ApiBaseUrl = env.IsDevelopment() ? configuration.GetValue<string>("AccountApiBaseUrl") : Environment.GetEnvironmentVariable("AccountApiBaseUrl"),
+                    ClientId = env.IsDevelopment() ? configuration.GetValue<string>("AccountApiClientId") : Environment.GetEnvironmentVariable("AccountApiClientId"),
+                    ClientSecret = env.IsDevelopment() ? configuration.GetValue<string>("AccountApiClientSecret") : Environment.GetEnvironmentVariable("AccountApiClientSecret"),
+                    IdentifierUri = env.IsDevelopment() ? configuration.GetValue<string>("AccountApiIdentifierUri") : Environment.GetEnvironmentVariable("AccountApiIdentifierUri"),
+                    Tenant = env.IsDevelopment() ? configuration.GetValue<string>("AccountApiTenant") : Environment.GetEnvironmentVariable("AccountApiTenant")
                 };
             });
 
