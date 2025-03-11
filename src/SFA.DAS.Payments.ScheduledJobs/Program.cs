@@ -1,3 +1,4 @@
+using Autofac.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,6 +7,7 @@ using SFA.DAS.Payments.ScheduledJobs.Ioc;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureAppConfiguration((context, config) =>
     {
 
