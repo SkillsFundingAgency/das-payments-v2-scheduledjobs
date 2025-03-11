@@ -6,12 +6,13 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Ioc
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddAppSettingsConfiguration(this IServiceCollection services)
+        public static IServiceCollection AddAppSettingsConfiguration(this IServiceCollection services, IHostEnvironment env)
         {
             services.AddSingleton<IAppSettingsOptions>(provider =>
             {
@@ -19,44 +20,44 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
 
                 return new AppSettingsOptions
                 {
-                    IsEncrypted = configHelper.GetValue<bool>("IsEncrypted"),
+                    IsEncrypted = env.IsDevelopment() ? configHelper.GetValue<string>("IsEncrypted") : Environment.GetEnvironmentVariable("IsEncrypted").ToString(),
                     ConnectionStrings = new ConnectionStrings
                     {
-                        ServiceBusConnectionString = configHelper.GetConnectionString("ServiceBusConnectionString"),
-                        CommitmentsConnectionString = configHelper.GetConnectionString("CommitmentsConnectionString"),
-                        PaymentsConnectionString = configHelper.GetConnectionString("PaymentsConnectionString")
+                        ServiceBusConnectionString = env.IsDevelopment() ? configHelper.GetConnectionString("ServiceBusConnectionString") : Environment.GetEnvironmentVariable("ServiceBusConnectionString"),
+                        CommitmentsConnectionString = env.IsDevelopment() ? configHelper.GetConnectionString("CommitmentsConnectionString") : Environment.GetEnvironmentVariable("CommitmentsConnectionString"),
+                        PaymentsConnectionString = env.IsDevelopment() ? configHelper.GetConnectionString("PaymentsConnectionString") : Environment.GetEnvironmentVariable("PaymentsConnectionString")
                     },
                     Values = new Values
                     {
-                        AccountApiBaseUrl = configHelper.GetValue<string>("AccountApiBaseUrl"),
-                        AccountApiBatchSize = configHelper.GetValue<string>("AccountApiBatchSize"),
-                        AccountApiClientId = configHelper.GetValue<string>("AccountApiClientId"),
-                        AccountApiClientSecret = configHelper.GetValue<string>("AccountApiClientSecret"),
-                        AccountApiIdentifierUri = configHelper.GetValue<string>("AccountApiIdentifierUri"),
-                        AccountApiTenant = configHelper.GetValue<string>("AccountApiTenant"),
-                        ApplicationInsightsInstrumentationKey = configHelper.GetValue<string>("ApplicationInsightsInstrumentationKey"),
-                        AuditDataCleanUpSchedule = configHelper.GetValue<string>("AuditDataCleanUpSchedule"),
-                        CurrentAcademicYear = configHelper.GetValue<string>("CurrentAcademicYear"),
-                        CurrentCollectionPeriod = configHelper.GetValue<string>("CurrentCollectionPeriod"),
-                        DataLockAuditDataCleanUpQueue = configHelper.GetValue<string>("DataLockAuditDataCleanUpQueue"),
-                        DasNServiceBusLicenseKey = configHelper.GetValue<string>("DasNServiceBusLicenseKey"),
-                        EarningAuditDataCleanUpQueue = configHelper.GetValue<string>("EarningAuditDataCleanUpQueue"),
-                        EndpointName = configHelper.GetValue<string>("EndpointName"),
-                        EnvironmentName = configHelper.GetValue<string>("EnvironmentName"),
-                        EstimateSubmissionWindowMetricsSchedule = configHelper.GetValue<string>("EstimateSubmissionWindowMetricsSchedule"),
-                        FundingSourceAuditDataCleanUpQueue = configHelper.GetValue<string>("FundingSourceAuditDataCleanUpQueue"),
-                        FUNCTIONS_WORKER_RUNTIME = configHelper.GetValue<string>("FUNCTIONS_WORKER_RUNTIME"),
-                        LevyAccountBalanceEndpoint = configHelper.GetValue<string>("LevyAccountBalanceEndpoint"),
-                        LevyAccountSchedule = configHelper.GetValue<string>("LevyAccountSchedule"),
-                        LevyAccountValidationSchedule = configHelper.GetValue<string>("LevyAccountValidationSchedule"),
-                        LogLevel = configHelper.GetValue<string>("LogLevel"),
-                        PreviousAcademicYear = configHelper.GetValue<string>("PreviousAcademicYear"),
-                        PreviousAcademicYearCollectionPeriod = configHelper.GetValue<string>("PreviousAcademicYearCollectionPeriod"),
-                        RequiredPaymentAuditDataCleanUpQueue = configHelper.GetValue<string>("RequiredPaymentAuditDataCleanUpQueue"),
-                        ServiceName = configHelper.GetValue<string>("ServiceName"),
-                        Version = configHelper.GetValue<string>("Version"),
-                        ApprenticeshipValidationSchedule = configHelper.GetValue<string>("ApprenticeshipValidationSchedule"),
-                        AzureWebJobsStorage = configHelper.GetValue<string>("AzureWebJobsStorage")
+                        AccountApiBaseUrl = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiBaseUrl") : Environment.GetEnvironmentVariable("AccountApiBaseUrl"),
+                        AccountApiBatchSize = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiBatchSize") : Environment.GetEnvironmentVariable("AccountApiBatchSize"),
+                        AccountApiClientId = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiClientId") : Environment.GetEnvironmentVariable("AccountApiClientId"),
+                        AccountApiClientSecret = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiClientSecret") : Environment.GetEnvironmentVariable("AccountApiClientSecret"),
+                        AccountApiIdentifierUri = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiIdentifierUri") : Environment.GetEnvironmentVariable("AccountApiIdentifierUri"),
+                        AccountApiTenant = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiTenant") : Environment.GetEnvironmentVariable("AccountApiTenant"),
+                        ApplicationInsightsInstrumentationKey = env.IsDevelopment() ? configHelper.GetValue<string>("ApplicationInsightsInstrumentationKey") : Environment.GetEnvironmentVariable("ApplicationInsightsInstrumentationKey"),
+                        AuditDataCleanUpSchedule = env.IsDevelopment() ? configHelper.GetValue<string>("AuditDataCleanUpSchedule") : Environment.GetEnvironmentVariable("AuditDataCleanUpSchedule"),
+                        CurrentAcademicYear = env.IsDevelopment() ? configHelper.GetValue<string>("CurrentAcademicYear") : Environment.GetEnvironmentVariable("CurrentAcademicYear"),
+                        CurrentCollectionPeriod = env.IsDevelopment() ? configHelper.GetValue<string>("CurrentCollectionPeriod") : Environment.GetEnvironmentVariable("CurrentCollectionPeriod"),
+                        DataLockAuditDataCleanUpQueue = env.IsDevelopment() ? configHelper.GetValue<string>("DataLockAuditDataCleanUpQueue") : Environment.GetEnvironmentVariable("DataLockAuditDataCleanUpQueue"),
+                        DasNServiceBusLicenseKey = env.IsDevelopment() ? configHelper.GetValue<string>("DasNServiceBusLicenseKey") : Environment.GetEnvironmentVariable("DasNServiceBusLicenseKey"),
+                        EarningAuditDataCleanUpQueue = env.IsDevelopment() ? configHelper.GetValue<string>("EarningAuditDataCleanUpQueue") : Environment.GetEnvironmentVariable("EarningAuditDataCleanUpQueue"),
+                        EndpointName = env.IsDevelopment() ? configHelper.GetValue<string>("EndpointName") : Environment.GetEnvironmentVariable("EndpointName"),
+                        EnvironmentName = env.IsDevelopment() ? configHelper.GetValue<string>("EnvironmentName") : Environment.GetEnvironmentVariable("EnvironmentName"),
+                        EstimateSubmissionWindowMetricsSchedule = env.IsDevelopment() ? configHelper.GetValue<string>("EstimateSubmissionWindowMetricsSchedule") : Environment.GetEnvironmentVariable("EstimateSubmissionWindowMetricsSchedule"),
+                        FundingSourceAuditDataCleanUpQueue = env.IsDevelopment() ? configHelper.GetValue<string>("FundingSourceAuditDataCleanUpQueue") : Environment.GetEnvironmentVariable("FundingSourceAuditDataCleanUpQueue"),
+                        FUNCTIONS_WORKER_RUNTIME = env.IsDevelopment() ? configHelper.GetValue<string>("FUNCTIONS_WORKER_RUNTIME") : Environment.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME"),
+                        LevyAccountBalanceEndpoint = env.IsDevelopment() ? configHelper.GetValue<string>("LevyAccountBalanceEndpoint") : Environment.GetEnvironmentVariable("LevyAccountBalanceEndpoint"),
+                        LevyAccountSchedule = env.IsDevelopment() ? configHelper.GetValue<string>("LevyAccountSchedule") : Environment.GetEnvironmentVariable("LevyAccountSchedule"),
+                        LevyAccountValidationSchedule = env.IsDevelopment() ? configHelper.GetValue<string>("LevyAccountValidationSchedule") : Environment.GetEnvironmentVariable("LevyAccountValidationSchedule"),
+                        LogLevel = env.IsDevelopment() ? configHelper.GetValue<string>("LogLevel") : Environment.GetEnvironmentVariable("LogLevel"),
+                        PreviousAcademicYear = env.IsDevelopment() ? configHelper.GetValue<string>("PreviousAcademicYear") : Environment.GetEnvironmentVariable("PreviousAcademicYear"),
+                        PreviousAcademicYearCollectionPeriod = env.IsDevelopment() ? configHelper.GetValue<string>("PreviousAcademicYearCollectionPeriod") : Environment.GetEnvironmentVariable("PreviousAcademicYearCollectionPeriod"),
+                        RequiredPaymentAuditDataCleanUpQueue = env.IsDevelopment() ? configHelper.GetValue<string>("RequiredPaymentAuditDataCleanUpQueue") : Environment.GetEnvironmentVariable("RequiredPaymentAuditDataCleanUpQueue"),
+                        ServiceName = env.IsDevelopment() ? configHelper.GetValue<string>("ServiceName") : Environment.GetEnvironmentVariable("ServiceName"),
+                        Version = env.IsDevelopment() ? configHelper.GetValue<string>("Version") : Environment.GetEnvironmentVariable("Version"),
+                        ApprenticeshipValidationSchedule = env.IsDevelopment() ? configHelper.GetValue<string>("ApprenticeshipValidationSchedule") : Environment.GetEnvironmentVariable("ApprenticeshipValidationSchedule"),
+                        AzureWebJobsStorage = env.IsDevelopment() ? configHelper.GetValue<string>("AzureWebJobsStorage") : Environment.GetEnvironmentVariable("AzureWebJobsStorage")
                     }
                 };
             });
@@ -64,11 +65,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
             return services;
         }
 
-        public static IServiceCollection AddPaymentDatabaseContext(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddPaymentDatabaseContext(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
         {
+            string paymentsConnectionString = env.IsDevelopment() ? configuration.GetConnectionString("PaymentsConnectionString") : Environment.GetEnvironmentVariable("PaymentsConnectionString");
+
             services.AddDbContext<PaymentsDataContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("PaymentsConnectionString"), sqlOptions =>
+                options.UseSqlServer(paymentsConnectionString, sqlOptions =>
                 {
                     sqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 5,
@@ -80,11 +83,12 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
             return services;
         }
 
-        public static IServiceCollection AddCommitmentsDataContext(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCommitmentsDataContext(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
         {
+            string commitmentsConnectionString = env.IsDevelopment() ? configuration.GetConnectionString("CommitmentsConnectionString") : Environment.GetEnvironmentVariable("CommitmentsConnectionString");
             services.AddDbContext<CommitmentsDataContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("CommitmentsConnectionString"), sqlOptions =>
+                options.UseSqlServer(commitmentsConnectionString, sqlOptions =>
                 {
                     sqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 5,
@@ -123,7 +127,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
             return services;
         }
 
-        public static IServiceCollection AddAccountApiConfiguration(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddAccountApiConfiguration(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
         {
             services.AddSingleton<IAccountApiConfiguration>(provider =>
             {
@@ -131,11 +135,11 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
 
                 return new AccountApiConfiguration
                 {
-                    ApiBaseUrl = configHelper.GetValue<string>("AccountApiBaseUrl"),
-                    ClientId = configHelper.GetValue<string>("AccountApiClientId"),
-                    ClientSecret = configHelper.GetValue<string>("AccountApiClientSecret"),
-                    IdentifierUri = configHelper.GetValue<string>("AccountApiIdentifierUri"),
-                    Tenant = configHelper.GetValue<string>("AccountApiTenant")
+                    ApiBaseUrl = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiBaseUrl") : Environment.GetEnvironmentVariable("AccountApiBaseUrl"),
+                    ClientId = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiClientId") : Environment.GetEnvironmentVariable("AccountApiClientId"),
+                    ClientSecret = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiClientSecret") : Environment.GetEnvironmentVariable("AccountApiClientSecret"),
+                    IdentifierUri = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiIdentifierUri") : Environment.GetEnvironmentVariable("AccountApiIdentifierUri"),
+                    Tenant = env.IsDevelopment() ? configHelper.GetValue<string>("AccountApiTenant") : Environment.GetEnvironmentVariable("AccountApiTenant")
                 };
             });
 
@@ -170,9 +174,9 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
             return services;
         }
 
-        public static IServiceCollection ConfigureServiceBusConfiguration(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection ConfigureServiceBusConfiguration(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
         {
-            var serviceBusConnectionString = configuration.GetConnectionString("ServiceBusConnectionString");
+            var serviceBusConnectionString = env.IsDevelopment() ? configuration.GetConnectionString("ServiceBusConnectionString") : Environment.GetEnvironmentVariable("ServiceBusConnectionString");
             if (string.IsNullOrEmpty(serviceBusConnectionString))
             {
                 throw new Exception("ServiceBusConnectionString is not set in the configuration");

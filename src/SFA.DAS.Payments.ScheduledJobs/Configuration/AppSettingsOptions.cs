@@ -2,7 +2,7 @@
 {
     public class AppSettingsOptions : IAppSettingsOptions
     {
-        public bool IsEncrypted { get; set; }
+        public string IsEncrypted { get; set; }
         public Values Values { get; set; }
         public ConnectionStrings ConnectionStrings { get; set; }
     }
