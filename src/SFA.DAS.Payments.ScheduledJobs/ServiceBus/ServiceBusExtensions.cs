@@ -10,7 +10,17 @@ namespace SFA.DAS.Payments.ScheduledJobs.ServiceBus
     {
         public static IServiceCollection AddServiceBusClientHelper(this IServiceCollection services, string connectionString)
         {
-            services.AddSingleton(new ServiceBusClient(connectionString));
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new ArgumentException("ServiceBusConnectionString is not set in the configuration schedulejob function", nameof(connectionString));
+            }
+            
+            services.AddSingleton(provider =>
+            {
+                var logger = provider.GetRequiredService<ILogger<ServiceBusClient>>();
+                logger.LogInformation("Initializing ServiceBusClient with connection string: {ConnectionString}", connectionString);
+                return new ServiceBusClient(connectionString);
+            });
 
             // Polly retry policy
             services.AddSingleton<AsyncRetryPolicy>(provider =>
