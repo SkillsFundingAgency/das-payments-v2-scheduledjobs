@@ -1,5 +1,6 @@
 using Autofac.Core;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -8,32 +9,16 @@ using SFA.DAS.Payments.ScheduledJobs.Ioc;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
+    .ConfigureAppConfiguration((context, config) =>
+    {
+        config.AddEnvironmentVariables();
+    })
     .ConfigureServices((context, services) =>
      {
 
-         if (context.Configuration == null)
-         {
-             throw new InvalidOperationException($"IConfiguration is not available in {nameof(Program)}");
-         }
-
-         // Log the current environment
          var serviceProvider = services.BuildServiceProvider();
-         var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
          var env = serviceProvider.GetRequiredService<IHostEnvironment>();
-         logger.LogInformation($"Current environment: {env.EnvironmentName}");
-
-         // Ensure IConfiguration is available
-         var configuration = context.Configuration;
-         if (configuration == null)
-         {
-             logger.LogError("Configuration is null");
-         }
-         else
-         {
-             logger.LogInformation("Configuration is available");
-         }
-
-
+         
          services.AddApplicationInsightsTelemetryWorkerService();
          services.ConfigureFunctionsApplicationInsights();
 
@@ -41,7 +26,6 @@ var host = new HostBuilder()
          services.AddPaymentDatabaseContext(context.Configuration, env);
          services.AddCommitmentsDataContext(context.Configuration, env);
 
-         services.AddAppSettingsConfiguration(env);
          services.AddScopedServices();
          services.AddSingletonServices();
 

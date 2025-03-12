@@ -1,4 +1,6 @@
-﻿using SFA.DAS.EAS.Account.Api.Types;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Payments.Model.Core.Entities;
 using SFA.DAS.Payments.ScheduledJobs.Common;
 
@@ -6,17 +8,20 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 {
     public class DasLevyAccountApiWrapper : IDasLevyAccountApiWrapper
     {
-        private readonly IAppSettingsOptions _appSettings;
+        private readonly IConfiguration _configuration;
+        private readonly IHostEnvironment _environment;
         private readonly IAccountApiClient _accountApiClient;
         private readonly IPaymentLogger _logger;
 
         public DasLevyAccountApiWrapper(IAccountApiClient accountApiClient
             , IPaymentLogger logger
-            , IAppSettingsOptions settings)
+            , IConfiguration configuration
+            , IHostEnvironment environment)
         {
             _accountApiClient = accountApiClient ?? throw new ArgumentNullException(nameof(accountApiClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _appSettings = settings;
+            _configuration = configuration ?? throw new ArgumentException(nameof(configuration));
+            _environment = environment ?? throw new ArgumentException(nameof(environment));
         }
 
         public async Task<List<LevyAccountModel>> GetDasLevyAccountDetails()
@@ -45,7 +50,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 
             try
             {
-                if (!int.TryParse(_appSettings.Values.AccountApiBatchSize, out int accountApiBatchSize))
+                if (!int.TryParse(_configuration.GetValue<string>("AccountApiBatchSize"), out int accountApiBatchSize))
                 {
                     throw new InvalidOperationException("Invalid AccountApiBatchSize value in app settings.");
                 }
@@ -63,9 +68,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 
         private async Task<int> GetTotalPageSize()
         {
+            string apiAccountBatchSize = _environment.IsDevelopment()
+                ? _configuration.GetValue<string>("AccountApiBatchSize")
+                : Environment.GetEnvironmentVariable("AccountApiBatchSize");
+
             try
             {
-                if (!int.TryParse(_appSettings.Values.AccountApiBatchSize, out int accountApiBatchSize))
+                if (!int.TryParse(apiAccountBatchSize, out int accountApiBatchSize))
                 {
                     throw new InvalidOperationException("Invalid AccountApiBatchSize value in app settings.");
                 }

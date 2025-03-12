@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using SFA.DAS.Payments.Application.Repositories;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ScheduledJobs.Configuration;
@@ -10,18 +12,21 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Services
     public class AuditDataCleanUpServiceTests
     {
         private Mock<ILogger<AuditDataCleanUpService>> _mockLogger;
-        private Mock<IAppSettingsOptions> _mockSettings;
         private Mock<IServiceBusClientHelper> _mockServiceBusClientHelper;
         private IPaymentsDataContext _paymentsDataContext;
         private Mock<IAuditDataCleanUpDataservice> _auditDataCleanUpDataserviceMock;
+
+        private Mock<IConfiguration> _configuration;
+        private Mock<IHostEnvironment> _environment;
 
         [SetUp]
         public void SetUp()
         {
             _mockLogger = new Mock<ILogger<AuditDataCleanUpService>>();
-            _mockSettings = new Mock<IAppSettingsOptions>();
             _mockServiceBusClientHelper = new Mock<IServiceBusClientHelper>();
             _auditDataCleanUpDataserviceMock = new Mock<IAuditDataCleanUpDataservice>();
+            _configuration = new Mock<IConfiguration>();
+            _environment = new Mock<IHostEnvironment>();
 
             var options = new DbContextOptionsBuilder<PaymentsDataContext>()
                 .UseInMemoryDatabase(databaseName: "PaymentsDatabase")
@@ -35,11 +40,11 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Services
         public async Task TriggerAuditDataCleanUp_ShouldLogInformation()
         {
             // Arrange
-            _mockSettings.Setup(s => s.Values).Returns(new Values
-            {
-                CurrentCollectionPeriod = "2021",
-                CurrentAcademicYear = "2021/22"
-            });
+
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+            Environment.SetEnvironmentVariable("CurrentCollectionPeriod", "2021");
+            Environment.SetEnvironmentVariable("CurrentAcademicYear", "2021/22");
+
 
             var jobjsToBeDeleted = new List<SubmissionJobsToBeDeletedBatch>
             {
@@ -54,9 +59,10 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Services
 
             var service = new AuditDataCleanUpService(_paymentsDataContext,
                 _mockLogger.Object,
-                _mockSettings.Object,
                 _mockServiceBusClientHelper.Object,
-                _auditDataCleanUpDataserviceMock.Object);
+                _auditDataCleanUpDataserviceMock.Object,
+                _configuration.Object,
+                _environment.Object);
 
             // Act
             var result = await service.TriggerAuditDataCleanUp();

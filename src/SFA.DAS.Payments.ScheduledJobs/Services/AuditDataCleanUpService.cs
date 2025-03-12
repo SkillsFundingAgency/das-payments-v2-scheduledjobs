@@ -1,5 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.Core;
@@ -12,33 +14,53 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
     {
         private readonly IPaymentsDataContext _paymentDataContext;
         private readonly ILogger<AuditDataCleanUpService> _logger;
-        private readonly IAppSettingsOptions _settings;
         private readonly IServiceBusClientHelper _serviceBusClientHelper;
         private readonly IAuditDataCleanUpDataservice _auditDataCleanUpDataservice;
+        private readonly IConfiguration _configuration;
+        private readonly IHostEnvironment _environment;
+
 
         public AuditDataCleanUpService(IPaymentsDataContext dataContext
             , ILogger<AuditDataCleanUpService> paymentLogger
-            , IAppSettingsOptions settings
             , IServiceBusClientHelper serviceBusClientHelper,
-              IAuditDataCleanUpDataservice auditDataCleanUpDataservice)
+              IAuditDataCleanUpDataservice auditDataCleanUpDataservice,
+              IConfiguration configuration,
+              IHostEnvironment environment)
         {
             _paymentDataContext = dataContext;
             _logger = paymentLogger;
-            _settings = settings;
             _serviceBusClientHelper = serviceBusClientHelper;
             _auditDataCleanUpDataservice = auditDataCleanUpDataservice;
+            _configuration = configuration;
+            _environment = environment;
         }
 
         public async Task<AuditDataCleanUpBinding> TriggerAuditDataCleanUp()
         {
             IEnumerable<SubmissionJobsToBeDeletedBatch> previousSubmissionJobsToBeDeletedBatches = new List<SubmissionJobsToBeDeletedBatch>();
 
-            if (!string.IsNullOrWhiteSpace(_settings.Values.PreviousAcademicYearCollectionPeriod) && !string.IsNullOrWhiteSpace(_settings.Values.PreviousAcademicYear))
+            string previousAcademicYearCollectionPeriod = _environment.IsDevelopment()
+                ? _configuration.GetValue<string>("PreviousAcademicYearCollectionPeriod")
+                : Environment.GetEnvironmentVariable("PreviousAcademicYearCollectionPeriod");
+
+            string previousAcademicYear = _environment.IsDevelopment()
+                ? _configuration.GetValue<string>("PreviousAcademicYear")
+                : Environment.GetEnvironmentVariable("PreviousAcademicYear");
+
+            string currentCollectionPeriod = _environment.IsDevelopment()
+                 ? _configuration.GetValue<string>("CurrentCollectionPeriod")
+                 : Environment.GetEnvironmentVariable("CurrentCollectionPeriod");
+
+            string currentAcademicYear = _environment.IsDevelopment()
+                ? _configuration.GetValue<string>("CurrentAcademicYear")
+                : Environment.GetEnvironmentVariable("CurrentAcademicYear");
+
+            if (!string.IsNullOrWhiteSpace(previousAcademicYearCollectionPeriod) && !string.IsNullOrWhiteSpace(previousAcademicYear))
             {
-                previousSubmissionJobsToBeDeletedBatches = await _auditDataCleanUpDataservice.GetSubmissionJobsToBeDeletedBatches(_settings.Values.PreviousAcademicYearCollectionPeriod, _settings.Values.PreviousAcademicYear);
+                previousSubmissionJobsToBeDeletedBatches = await _auditDataCleanUpDataservice.GetSubmissionJobsToBeDeletedBatches(previousAcademicYearCollectionPeriod, previousAcademicYear);
             }
 
-            var currentSubmissionJobsToBeDeletedBatches = await _auditDataCleanUpDataservice.GetSubmissionJobsToBeDeletedBatches(_settings.Values.CurrentCollectionPeriod, _settings.Values.CurrentAcademicYear);
+            var currentSubmissionJobsToBeDeletedBatches = await _auditDataCleanUpDataservice.GetSubmissionJobsToBeDeletedBatches(currentCollectionPeriod, currentAcademicYear);
 
             var submissionJobsToBeDeletedBatches = previousSubmissionJobsToBeDeletedBatches.Union(currentSubmissionJobsToBeDeletedBatches);
             var submissionJobsToBeDeletedBatchesList = submissionJobsToBeDeletedBatches.ToList();
@@ -75,22 +97,38 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
         }
         public async Task EarningEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
         {
-            await AuditDataCleanUp(DeleteEarningEventData, batch, _settings.Values.EarningAuditDataCleanUpQueue);
+            string earningAuditDataCleanUpQueue = _environment.IsDevelopment()
+                ? _configuration.GetValue<string>("EarningAuditDataCleanUpQueue")
+                : Environment.GetEnvironmentVariable("EarningAuditDataCleanUpQueue");
+
+            await AuditDataCleanUp(DeleteEarningEventData, batch, earningAuditDataCleanUpQueue);
         }
 
         public async Task FundingSourceEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
         {
-            await AuditDataCleanUp(DeleteFundingSourceEvent, batch, _settings.Values.FundingSourceAuditDataCleanUpQueue);
+            string fundingSourceAuditDataCleanUpQueue = _environment.IsDevelopment()
+                ? _configuration.GetValue<string>("FundingSourceAuditDataCleanUpQueue")
+                : Environment.GetEnvironmentVariable("FundingSourceAuditDataCleanUpQueue");
+
+            await AuditDataCleanUp(DeleteFundingSourceEvent, batch, fundingSourceAuditDataCleanUpQueue);
         }
 
         public async Task RequiredPaymentEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
         {
-            await AuditDataCleanUp(DeleteRequiredPaymentEvent, batch, _settings.Values.RequiredPaymentAuditDataCleanUpQueue);
+            string requiredPaymentAuditDataCleanUpQueue = _environment.IsDevelopment()
+                ? _configuration.GetValue<string>("RequiredPaymentAuditDataCleanUpQueue")
+                : Environment.GetEnvironmentVariable("RequiredPaymentAuditDataCleanUpQueue");
+
+            await AuditDataCleanUp(DeleteRequiredPaymentEvent, batch, requiredPaymentAuditDataCleanUpQueue);
         }
 
         public async Task DataLockEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
         {
-            await AuditDataCleanUp(DeleteDataLockEvent, batch, _settings.Values.DataLockAuditDataCleanUpQueue);
+            string dataLockAuditDataCleanUpQueue = _environment.IsDevelopment()
+                ? _configuration.GetValue<string>("DataLockAuditDataCleanUpQueue")
+                : Environment.GetEnvironmentVariable("DataLockAuditDataCleanUpQueue");
+
+            await AuditDataCleanUp(DeleteDataLockEvent, batch, dataLockAuditDataCleanUpQueue);
         }
 
         private async Task SplitBatchAndEnqueueMessages(SubmissionJobsToBeDeletedBatch batch, string queueName)
