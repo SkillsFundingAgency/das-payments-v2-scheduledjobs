@@ -69,7 +69,7 @@
 
             // Assert
             response.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
-            result.Should().BeNull();
+            result.Result.Should().BeNull();
         }
     }
 }
