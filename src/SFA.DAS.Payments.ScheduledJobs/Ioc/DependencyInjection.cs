@@ -14,7 +14,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
     {
         public static IServiceCollection AddAppSettingsConfiguration(this IServiceCollection services, IHostEnvironment env)
         {
-            services.AddSingleton<IAppSettingsOptions>(provider =>
+            services.AddSingleton<IAppSettingsOptions, AppSettingsOptions>(provider =>
             {
                 var configHelper = provider.GetRequiredService<IConfiguration>();
                 if (configHelper == null)
@@ -133,7 +133,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
 
         public static IServiceCollection AddAccountApiConfiguration(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
         {
-            services.AddSingleton<IAccountApiConfiguration>(provider =>
+            services.AddSingleton<IAccountApiConfiguration, AccountApiConfiguration>(provider =>
             {
                 return new AccountApiConfiguration
                 {
@@ -150,7 +150,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
 
         public static IServiceCollection AddApplicationLoggerSettings(this IServiceCollection services)
         {
-            services.AddSingleton<IApplicationLoggerSettings>(provider =>
+            services.AddSingleton<IApplicationLoggerSettings, ApplicationLoggerSettings>(provider =>
             {
                 var versionInfo = provider.GetRequiredService<IVersionInfo>();
                 var configHelper = provider.GetRequiredService<IConfigurationHelper>();
