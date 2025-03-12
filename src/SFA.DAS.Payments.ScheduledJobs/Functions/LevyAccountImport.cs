@@ -25,14 +25,14 @@ namespace SFA.DAS.Payments.ScheduledJobs.Functions
         }
 
         [Function("HttpLevyAccountImport")]
-        public LevyAccountImportBinding HttpLevyAccountImport([HttpTrigger(AuthorizationLevel.Function, "get", Route = "ImportLevyAccount")] HttpRequest httpRequest)
+        public async Task<LevyAccountImportBinding> HttpLevyAccountImport([HttpTrigger(AuthorizationLevel.Function, "get", Route = "ImportLevyAccount")] HttpRequest httpRequest)
         {
             var response = httpRequest.HttpContext.Response;
 
             try
             {
                 var result = _levyAccountImportService.RunLevyAccountImport();
-                response.WriteAsync("Request processed successfully");
+                await response.WriteAsync("Request processed successfully");
                 return result;
             }
             catch (Exception ex)
@@ -41,7 +41,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Functions
                 string errorMessage = $"An error occurred while processing the request. {ex.Message}";
                 _logger.LogError(errorMessage);
                 response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                response.WriteAsync(errorMessage);
+                await response.WriteAsync(errorMessage);
             }
             return null;
         }
