@@ -13,6 +13,8 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
         private readonly IAccountApiClient _accountApiClient;
         private readonly IPaymentLogger _logger;
 
+        string apiAccountBatchSize = string.Empty;
+
         public DasLevyAccountApiWrapper(IAccountApiClient accountApiClient
             , IPaymentLogger logger
             , IConfiguration configuration
@@ -22,6 +24,11 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _configuration = configuration ?? throw new ArgumentException(nameof(configuration));
             _environment = environment ?? throw new ArgumentException(nameof(environment));
+
+
+            apiAccountBatchSize = _environment.IsDevelopment()
+               ? _configuration.GetValue<string>("AccountApiBatchSize")
+               : Environment.GetEnvironmentVariable("AccountApiBatchSize");
         }
 
         public async Task<List<LevyAccountModel>> GetDasLevyAccountDetails()
@@ -50,7 +57,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 
             try
             {
-                if (!int.TryParse(_configuration.GetValue<string>("AccountApiBatchSize"), out int accountApiBatchSize))
+                if (!int.TryParse(apiAccountBatchSize, out int accountApiBatchSize))
                 {
                     throw new InvalidOperationException("Invalid AccountApiBatchSize value in app settings.");
                 }
@@ -68,10 +75,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 
         private async Task<int> GetTotalPageSize()
         {
-            string apiAccountBatchSize = _environment.IsDevelopment()
-                ? _configuration.GetValue<string>("AccountApiBatchSize")
-                : Environment.GetEnvironmentVariable("AccountApiBatchSize");
-
             try
             {
                 if (!int.TryParse(apiAccountBatchSize, out int accountApiBatchSize))

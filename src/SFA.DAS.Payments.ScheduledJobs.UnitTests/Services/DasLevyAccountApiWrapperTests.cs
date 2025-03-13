@@ -40,16 +40,18 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTest.Services
             _configuration = new Mock<IConfiguration>();
             _environment = new Mock<IHostEnvironment>();
 
+
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+            Environment.SetEnvironmentVariable("AccountApiBatchSize", "1000");
+
             _dasLevyAccountApiWrapper = new DasLevyAccountApiWrapper(_mockAccountApiClient.Object
                 , _mockLogger.Object
                 , _configuration.Object
                 , _environment.Object);
-
-            //Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
-            Environment.SetEnvironmentVariable("AccountApiBatchSize", "1000");
+         
         }
 
-        [Ignore("todo:need to work on")]
+        [Test]
         public async Task GetDasLevyAccountDetails_Should_CallGetPageOfAccountsToGetLevyAccounts()
         {
             _mockAccountApiClient
