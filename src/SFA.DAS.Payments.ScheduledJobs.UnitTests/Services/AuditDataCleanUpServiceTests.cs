@@ -69,29 +69,29 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Services
 
             // Assert
             result.FundingSource.Should().NotBeNull();
-            result.FundingSource.Should().BeOfType<FundingSourceAuditData>();
-            result.FundingSource.JobsToBeDeleted.Should().NotBeNull();
-            result.FundingSource.JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
-            result.FundingSource.JobsToBeDeleted.First().DcJobId.Should().Be(1);
+            result.FundingSource.Should().BeOfType<List<FundingSourceAuditData>>();
+            result.FundingSource.First().JobsToBeDeleted.Should().NotBeNull();
+            result.FundingSource.First().JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
+            result.FundingSource.First().JobsToBeDeleted.First().DcJobId.Should().Be(1);
 
             result.DataLock.Should().NotBeNull();
-            result.DataLock.Should().BeOfType<DataLockAuditData>();
-            result.DataLock.JobsToBeDeleted.Should().NotBeNull();
-            result.DataLock.JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
-            result.DataLock.JobsToBeDeleted.First().DcJobId.Should().Be(1);
+            result.DataLock.Should().BeOfType<List<DataLockAuditData>>();
+            result.DataLock.First().JobsToBeDeleted.Should().NotBeNull();
+            result.DataLock.First().JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
+            result.DataLock.First().JobsToBeDeleted.First().DcJobId.Should().Be(1);
 
             result.EarningAudit.Should().NotBeNull();
-            result.EarningAudit.Should().BeOfType<EarningAuditData>();
-            result.EarningAudit.JobsToBeDeleted.Should().NotBeNull();
-            result.EarningAudit.JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
-            result.EarningAudit.JobsToBeDeleted.First().DcJobId.Should().Be(1);
+            result.EarningAudit.Should().BeOfType<List<EarningAuditData>>();
+            result.EarningAudit.First().JobsToBeDeleted.Should().NotBeNull();
+            result.EarningAudit.First().JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
+            result.EarningAudit.First().JobsToBeDeleted.First().DcJobId.Should().Be(1);
 
 
             result.RequiredPayments.Should().NotBeNull();
-            result.RequiredPayments.Should().BeOfType<RequiredPaymentAuditData>();
-            result.RequiredPayments.JobsToBeDeleted.Should().NotBeNull();
-            result.RequiredPayments.JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
-            result.RequiredPayments.JobsToBeDeleted.First().DcJobId.Should().Be(1);
+            result.RequiredPayments.Should().BeOfType<List<RequiredPaymentAuditData>>();
+            result.RequiredPayments.First().JobsToBeDeleted.Should().NotBeNull();
+            result.RequiredPayments.First().JobsToBeDeleted.Should().HaveCount(jobjsToBeDeleted.Count);
+            result.RequiredPayments.First().JobsToBeDeleted.First().DcJobId.Should().Be(1);
 
             _mockLogger.Verify(
                 logger => logger.Log(

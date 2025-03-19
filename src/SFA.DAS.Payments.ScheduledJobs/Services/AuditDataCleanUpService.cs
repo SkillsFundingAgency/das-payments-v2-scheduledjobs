@@ -64,33 +64,41 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 
             var submissionJobsToBeDeletedBatches = previousSubmissionJobsToBeDeletedBatches.Union(currentSubmissionJobsToBeDeletedBatches);
             var submissionJobsToBeDeletedBatchesList = submissionJobsToBeDeletedBatches.ToList();
+            var batchProcessor = submissionJobsToBeDeletedBatchesList;
 
             _logger.LogInformation($"Triggering Audit Data Cleanup for {submissionJobsToBeDeletedBatchesList.Count} submission job batches. " +
                                   $"DCJobIds: {string.Join(",", submissionJobsToBeDeletedBatchesList.SelectMany(x => x.JobsToBeDeleted.Select(y => y.DcJobId)))}");
 
-            var JobsToBeDeleted = submissionJobsToBeDeletedBatchesList.SelectMany(batch => batch.JobsToBeDeleted).ToArray();
-
-            if (JobsToBeDeleted.Count() > 0)
+            if (batchProcessor.Count() > 0)
             {
-                return new AuditDataCleanUpBinding
+                var AuditDataCleanUpBinding = new AuditDataCleanUpBinding();
+                
+                foreach (var batch in batchProcessor)
                 {
-                    DataLock = new DataLockAuditData
+                    var dataLockAuditData = new DataLockAuditData
                     {
-                        JobsToBeDeleted = JobsToBeDeleted
-                    },
-                    EarningAudit = new EarningAuditData
+                        JobsToBeDeleted = batch.JobsToBeDeleted
+                    };
+                    var EarningAuditData = new EarningAuditData
                     {
-                        JobsToBeDeleted = JobsToBeDeleted
-                    },
-                    FundingSource = new FundingSourceAuditData
+                        JobsToBeDeleted = batch.JobsToBeDeleted
+                    };
+                    var FundingSourceAuditData = new FundingSourceAuditData
                     {
-                        JobsToBeDeleted = JobsToBeDeleted
-                    },
-                    RequiredPayments = new RequiredPaymentAuditData
+                        JobsToBeDeleted = batch.JobsToBeDeleted
+                    };
+                    var RequiredPaymentAuditData = new RequiredPaymentAuditData
                     {
-                        JobsToBeDeleted = JobsToBeDeleted
-                    }
-                };
+                        JobsToBeDeleted = batch.JobsToBeDeleted
+                    };
+
+                    AuditDataCleanUpBinding.DataLock.Add(dataLockAuditData);
+                    AuditDataCleanUpBinding.EarningAudit.Add(EarningAuditData);
+                    AuditDataCleanUpBinding.FundingSource.Add(FundingSourceAuditData);
+                    AuditDataCleanUpBinding.RequiredPayments.Add(RequiredPaymentAuditData);
+                }
+
+                return AuditDataCleanUpBinding;
             }
             return null;
 

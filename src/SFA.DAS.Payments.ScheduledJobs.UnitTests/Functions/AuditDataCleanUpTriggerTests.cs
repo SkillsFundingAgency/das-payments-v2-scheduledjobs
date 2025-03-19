@@ -87,10 +87,10 @@
             _mockAuditDataCleanUpService.Setup(x => x.TriggerAuditDataCleanUp())
                                 .ReturnsAsync(new AuditDataCleanUpBinding
                                 {
-                                    DataLock = new DataLockAuditData(),
-                                    EarningAudit = new EarningAuditData(),
-                                    FundingSource = new FundingSourceAuditData(),
-                                    RequiredPayments = new RequiredPaymentAuditData()
+                                    DataLock = new List<DataLockAuditData>(),
+                                    EarningAudit = new List<EarningAuditData>(),
+                                    FundingSource = new List<FundingSourceAuditData>(),
+                                    RequiredPayments = new List<RequiredPaymentAuditData>()
                                 });
 
             // Act
