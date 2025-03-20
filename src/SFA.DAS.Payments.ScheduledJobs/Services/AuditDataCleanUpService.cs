@@ -37,72 +37,59 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 
         public async Task<AuditDataCleanUpBinding> TriggerAuditDataCleanUp()
         {
-            IEnumerable<SubmissionJobsToBeDeletedBatch> previousSubmissionJobsToBeDeletedBatches = new List<SubmissionJobsToBeDeletedBatch>();
+            var previousAcademicYearCollectionPeriod = GetConfigurationValue("PreviousAcademicYearCollectionPeriod");
+            var previousAcademicYear = GetConfigurationValue("PreviousAcademicYear");
+            var currentCollectionPeriod = GetConfigurationValue("CurrentCollectionPeriod");
+            var currentAcademicYear = GetConfigurationValue("CurrentAcademicYear");
 
-            string previousAcademicYearCollectionPeriod = _environment.IsDevelopment()
-                ? _configuration.GetValue<string>("PreviousAcademicYearCollectionPeriod")
-                : Environment.GetEnvironmentVariable("PreviousAcademicYearCollectionPeriod");
+            var previousSubmissionJobsToBeDeletedBatches = await GetSubmissionJobsToBeDeletedBatches(previousAcademicYearCollectionPeriod, previousAcademicYear);
+            var currentSubmissionJobsToBeDeletedBatches = await GetSubmissionJobsToBeDeletedBatches(currentCollectionPeriod, currentAcademicYear);
 
-            string previousAcademicYear = _environment.IsDevelopment()
-                ? _configuration.GetValue<string>("PreviousAcademicYear")
-                : Environment.GetEnvironmentVariable("PreviousAcademicYear");
+            var submissionJobsToBeDeletedBatches = previousSubmissionJobsToBeDeletedBatches.Union(currentSubmissionJobsToBeDeletedBatches).ToList();
 
-            string currentCollectionPeriod = _environment.IsDevelopment()
-                 ? _configuration.GetValue<string>("CurrentCollectionPeriod")
-                 : Environment.GetEnvironmentVariable("CurrentCollectionPeriod");
+            _logger.LogInformation($"Triggering Audit Data Cleanup for {submissionJobsToBeDeletedBatches.Count} submission job batches. " +
+                                   $"DCJobIds: {string.Join(",", submissionJobsToBeDeletedBatches.SelectMany(x => x.JobsToBeDeleted.Select(y => y.DcJobId)))}");
 
-            string currentAcademicYear = _environment.IsDevelopment()
-                ? _configuration.GetValue<string>("CurrentAcademicYear")
-                : Environment.GetEnvironmentVariable("CurrentAcademicYear");
-
-            if (!string.IsNullOrWhiteSpace(previousAcademicYearCollectionPeriod) && !string.IsNullOrWhiteSpace(previousAcademicYear))
+            if (submissionJobsToBeDeletedBatches.Any())
             {
-                previousSubmissionJobsToBeDeletedBatches = await _auditDataCleanUpDataservice.GetSubmissionJobsToBeDeletedBatches(previousAcademicYearCollectionPeriod, previousAcademicYear);
+                return CreateAuditDataCleanUpBinding(submissionJobsToBeDeletedBatches);
             }
 
-            var currentSubmissionJobsToBeDeletedBatches = await _auditDataCleanUpDataservice.GetSubmissionJobsToBeDeletedBatches(currentCollectionPeriod, currentAcademicYear);
-
-            var submissionJobsToBeDeletedBatches = previousSubmissionJobsToBeDeletedBatches.Union(currentSubmissionJobsToBeDeletedBatches);
-            var submissionJobsToBeDeletedBatchesList = submissionJobsToBeDeletedBatches.ToList();
-            var batchProcessor = submissionJobsToBeDeletedBatchesList;
-
-            _logger.LogInformation($"Triggering Audit Data Cleanup for {submissionJobsToBeDeletedBatchesList.Count} submission job batches. " +
-                                  $"DCJobIds: {string.Join(",", submissionJobsToBeDeletedBatchesList.SelectMany(x => x.JobsToBeDeleted.Select(y => y.DcJobId)))}");
-
-            if (batchProcessor.Count() > 0)
-            {
-                var AuditDataCleanUpBinding = new AuditDataCleanUpBinding();
-                
-                foreach (var batch in batchProcessor)
-                {
-                    var dataLockAuditData = new DataLockAuditData
-                    {
-                        JobsToBeDeleted = batch.JobsToBeDeleted
-                    };
-                    var EarningAuditData = new EarningAuditData
-                    {
-                        JobsToBeDeleted = batch.JobsToBeDeleted
-                    };
-                    var FundingSourceAuditData = new FundingSourceAuditData
-                    {
-                        JobsToBeDeleted = batch.JobsToBeDeleted
-                    };
-                    var RequiredPaymentAuditData = new RequiredPaymentAuditData
-                    {
-                        JobsToBeDeleted = batch.JobsToBeDeleted
-                    };
-
-                    AuditDataCleanUpBinding.DataLock.Add(dataLockAuditData);
-                    AuditDataCleanUpBinding.EarningAudit.Add(EarningAuditData);
-                    AuditDataCleanUpBinding.FundingSource.Add(FundingSourceAuditData);
-                    AuditDataCleanUpBinding.RequiredPayments.Add(RequiredPaymentAuditData);
-                }
-
-                return AuditDataCleanUpBinding;
-            }
             return null;
-
         }
+
+        private string GetConfigurationValue(string key)
+        {
+            return _environment.IsDevelopment()
+                ? _configuration.GetValue<string>(key)
+                : Environment.GetEnvironmentVariable(key);
+        }
+
+        private async Task<IEnumerable<SubmissionJobsToBeDeletedBatch>> GetSubmissionJobsToBeDeletedBatches(string collectionPeriod, string academicYear)
+        {
+            if (!string.IsNullOrWhiteSpace(collectionPeriod) && !string.IsNullOrWhiteSpace(academicYear))
+            {
+                return await _auditDataCleanUpDataservice.GetSubmissionJobsToBeDeletedBatches(collectionPeriod, academicYear);
+            }
+
+            return Enumerable.Empty<SubmissionJobsToBeDeletedBatch>();
+        }
+
+        private AuditDataCleanUpBinding CreateAuditDataCleanUpBinding(List<SubmissionJobsToBeDeletedBatch> batches)
+        {
+            var auditDataCleanUpBinding = new AuditDataCleanUpBinding();
+
+            foreach (var batch in batches)
+            {
+                auditDataCleanUpBinding.DataLock.Add(new DataLockAuditData { JobsToBeDeleted = batch.JobsToBeDeleted });
+                auditDataCleanUpBinding.EarningAudit.Add(new EarningAuditData { JobsToBeDeleted = batch.JobsToBeDeleted });
+                auditDataCleanUpBinding.FundingSource.Add(new FundingSourceAuditData { JobsToBeDeleted = batch.JobsToBeDeleted });
+                auditDataCleanUpBinding.RequiredPayments.Add(new RequiredPaymentAuditData { JobsToBeDeleted = batch.JobsToBeDeleted });
+            }
+
+            return auditDataCleanUpBinding;
+        }
+
         public async Task EarningEventAuditDataCleanUp(SubmissionJobsToBeDeletedBatch batch)
         {
             string earningAuditDataCleanUpQueue = _environment.IsDevelopment()
