@@ -202,7 +202,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
         private async Task DeleteFundingSourceEvent(IList<SqlParameter> sqlParameters, string sqlParamName, string paramValues)
         {
             var fundingSourceEventCount = await _paymentDataContext.Database.ExecuteSqlRawAsync(
-                $"DELETE Payments2.FundingSourceEvent WHERE JobId IN ({sqlParamName})",
+                $"DELETE Payments2.FundingSourceEvent WHERE JobId IN ({sqlParamName}) AND (Payments2.FundingSourceEvent.FundingPlatformType = 1 OR Payments2.FundingSourceEvent.FundingPlatformType IS NULL)",
                 sqlParameters);
 
             _logger.LogInformation($"DELETED {fundingSourceEventCount} FundingSourceEvents for JobIds {paramValues}");
