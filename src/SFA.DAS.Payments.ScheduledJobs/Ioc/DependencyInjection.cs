@@ -20,6 +20,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
             {
                 options.UseSqlServer(paymentsConnectionString, sqlOptions =>
                 {
+                    sqlOptions.CommandTimeout(540);
                     sqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 5,
                         maxRetryDelay: TimeSpan.FromSeconds(30),
