@@ -22,7 +22,8 @@
             // Assert
             result.Should().NotBeNull();
             result.Should().BeOfType<LevyAccountImportBinding>();
-            result.EventId.Should().NotBeEmpty();
+            result.LevyAccountImport.Should().NotBeNull();
+            result.LevyAccountImport.EventId.Should().NotBeEmpty();
         }
     }
 }

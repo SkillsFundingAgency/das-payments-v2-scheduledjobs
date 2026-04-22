@@ -16,7 +16,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
         {
             return new LevyAccountImportBinding
             {
-                EventId = new ImportEmployerAccounts().EventId
+                LevyAccountImport = new ImportEmployerAccounts()
             };
         }
     }
