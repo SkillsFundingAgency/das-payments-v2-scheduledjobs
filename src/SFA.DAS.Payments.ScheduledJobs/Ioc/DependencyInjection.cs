@@ -1,4 +1,5 @@
-﻿using ESFA.DC.Logging.Config;
+﻿using Azure.Messaging.ServiceBus;
+using ESFA.DC.Logging.Config;
 using ESFA.DC.Logging.Config.Interfaces;
 using ESFA.DC.Logging.Enums;
 using ESFA.DC.Logging.Interfaces;
@@ -45,6 +46,20 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
                 });
             }, ServiceLifetime.Transient);
             services.AddScoped<ICommitmentsDataContext, CommitmentsDataContext>();
+            return services;
+        }
+
+        public static IServiceCollection AddLevyAccountServiceBusClient(this IServiceCollection services, IConfiguration configuration, IHostEnvironment env)
+        {
+            var serviceBusConnectionString = env.IsDevelopment() ? configuration.GetConnectionString("ServiceBusConnectionString") : Environment.GetEnvironmentVariable("ServiceBusConnectionString");
+            var serviceBusQueueName = env.IsDevelopment() ? configuration["LevyAccountBalanceEndpoint"] : Environment.GetEnvironmentVariable("LevyAccountBalanceEndpoint");
+            services.AddScoped(sp =>
+            {
+                var client = new ServiceBusClient(serviceBusConnectionString);
+                return client.CreateSender(serviceBusQueueName);
+            });
+
+            services.AddScoped<IServiceBusPublisher, ServiceBusPublisher>();
             return services;
         }
 

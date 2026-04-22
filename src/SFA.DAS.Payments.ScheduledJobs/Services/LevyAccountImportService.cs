@@ -1,23 +1,33 @@
 ﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.FundingSource.Messages.Commands;
-using SFA.DAS.Payments.ScheduledJobs.Bindings;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Services
 {
     public class LevyAccountImportService : ILevyAccountImportService
     {
+        private IServiceBusPublisher _serviceBusPublisher;
         private ILogger<LevyAccountImportService> _logger;
-        public LevyAccountImportService(ILogger<LevyAccountImportService> logger)
+        public LevyAccountImportService(IServiceBusPublisher serviceBusPublisher, ILogger<LevyAccountImportService> logger)
         {
+            _serviceBusPublisher = serviceBusPublisher;
             _logger = logger;
         }
 
-        public LevyAccountImportBinding RunLevyAccountImport()
+        public async Task<ImportEmployerAccounts> RunLevyAccountImport()
         {
-            return new LevyAccountImportBinding
+            var message = new ImportEmployerAccounts();
+            try
             {
-                LevyAccountImport = new ImportEmployerAccounts()
-            };
+                await _serviceBusPublisher.Publish(message);
+                _logger.LogInformation($"Published ImportEmployerAccounts EventId {message.EventId}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to publish ImportEmployerAccounts EventId {message.EventId}");
+                throw;
+            }
+
+            return message;
         }
     }
 }
