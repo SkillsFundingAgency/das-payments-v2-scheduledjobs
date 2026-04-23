@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Payments.FundingSource.Messages.Commands;
 using SFA.DAS.Payments.ScheduledJobs.Bindings;
 using System.Net;
 
@@ -19,30 +20,32 @@ namespace SFA.DAS.Payments.ScheduledJobs.Functions
         }
 
         [Function("LevyAccountImport")]
-        public LevyAccountImportBinding Run([TimerTrigger("%LevyAccountSchedule%")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("%LevyAccountSchedule%")] TimerInfo myTimer)
         {
-            return _levyAccountImportService.RunLevyAccountImport();
-        }
-
-        [Function("HttpLevyAccountImport")]
-        public async Task<LevyAccountImportBinding> HttpLevyAccountImport([HttpTrigger(AuthorizationLevel.Function, "get", Route = "ImportLevyAccount")] HttpRequest httpRequest)
-        {
-            var response = httpRequest.HttpContext.Response;
-
             try
             {
-                var result = _levyAccountImportService.RunLevyAccountImport();
-                await response.WriteAsync("Request processed successfully");
-                return result;
+                await _levyAccountImportService.RunLevyAccountImport();
             }
             catch (Exception ex)
             {
-
-                string errorMessage = $"An error occurred while processing the request. {ex.Message}";
-                _logger.LogError(errorMessage);
-                response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                await response.WriteAsync(errorMessage);
+                _logger.LogError(ex, $"An error occurred while processing the scheduled levy account import. {ex.Message}");
             }
+        }
+
+        [Function("HttpLevyAccountImport")]
+        public async Task<ImportEmployerAccounts> HttpLevyAccountImport([HttpTrigger(AuthorizationLevel.Function, "get", Route = "ImportLevyAccount")] HttpRequest httpRequest)
+        {
+            try
+            {
+                return await _levyAccountImportService.RunLevyAccountImport();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error occurred while processing the request. {ex.Message}");
+                var response = httpRequest.HttpContext.Response;
+                response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
+
             return null;
         }
     }
