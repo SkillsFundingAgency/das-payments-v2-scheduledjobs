@@ -64,6 +64,7 @@
 
             // Assert
             response.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            _mockLevyAccountImportService.Verify(x => x.RunLevyAccountImport(), Times.Once);
         }
 
         [Test]
