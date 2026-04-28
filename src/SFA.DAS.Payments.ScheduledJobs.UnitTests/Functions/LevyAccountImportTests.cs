@@ -16,45 +16,59 @@
         }
 
         [Test]
-        public void Run_Should_Call_LevyAccountImportService()
+        public async Task Run_Should_Call_LevyAccountImportService()
         {
             // Arrange
-            TimerInfo timerInfo = new TimerInfo();
-
-            var levyAccountImportBinding = new LevyAccountImportBinding();
-            _mockLevyAccountImportService.Setup(x => x.RunLevyAccountImport())
-                .Returns(levyAccountImportBinding);
+            var timerInfo = new TimerInfo();
 
             // Act
-            var result = _function.Run(timerInfo);
+            await _function.Run(timerInfo);
 
             // Assert
-            result.Should().BeEquivalentTo(levyAccountImportBinding);
             _mockLevyAccountImportService.Verify(x => x.RunLevyAccountImport(), Times.Once);
         }
 
         [Test]
-        public void HttpLevyAccountImport_Should_Return_Result_When_Successful()
+        public async Task Run_Should_Log_WhenExceptionThrown()
+        {
+            // Arrange
+            var timerInfo = new TimerInfo();
+            _mockLevyAccountImportService.Setup(x => x.RunLevyAccountImport())
+                .Throws(new Exception("Test exception"));
+
+            // Act
+            await _function.Run(timerInfo);
+
+            // Assert
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) =>
+                        v.ToString().Contains("An error occurred while processing the scheduled levy account import")),
+                    It.Is<Exception>(ex => ex.Message == "Test exception"),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task HttpLevyAccountImport_Should_Return_Result_When_Successful()
         {
             // Arrange
             var context = new DefaultHttpContext();
             var request = context.Request;
             var response = context.Response;
 
-            var levyAccountImportBinding = new LevyAccountImportBinding();
-            _mockLevyAccountImportService.Setup(x => x.RunLevyAccountImport())
-                .Returns(levyAccountImportBinding);
-
             // Act
-            var result = _function.HttpLevyAccountImport(request);
+            await _function.HttpLevyAccountImport(request);
 
             // Assert
-            result.Should().NotBeNull();
             response.StatusCode.Should().Be((int)HttpStatusCode.OK);
+            _mockLevyAccountImportService.Verify(x => x.RunLevyAccountImport(), Times.Once);
         }
 
         [Test]
-        public void HttpLevyAccountImport_Should_Return_InternalServerError_On_Exception()
+        public async Task HttpLevyAccountImport_Should_Return_InternalServerError_On_Exception()
         {
             // Arrange
             var context = new DefaultHttpContext();
@@ -65,11 +79,19 @@
                 .Throws(new Exception("Test exception"));
 
             // Act
-            var result = _function.HttpLevyAccountImport(request);
+            await _function.HttpLevyAccountImport(request);
 
             // Assert
             response.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
-            result.Result.Should().BeNull();
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) =>
+                        v.ToString().Contains("An error occurred while processing the request")), 
+                    It.Is<Exception>(ex => ex.Message == "Test exception"),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
     }
 }
