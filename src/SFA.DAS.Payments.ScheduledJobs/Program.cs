@@ -25,7 +25,7 @@ var host = new HostBuilder()
 
          services.AddPaymentDatabaseContext(context.Configuration, env);
          services.AddCommitmentsDataContext(context.Configuration, env);
-
+         services.AddLevyAccountServiceBusClient(context.Configuration, env);
          services.AddScopedServices();
          services.AddSingletonServices();
 

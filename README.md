@@ -20,7 +20,7 @@ More information here:
 
 ### Pre-Requisites
 
-Setup instructions can be found at the following link, which will help you set up your environment and access the correct repositories: https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/950927878/Development+Environment+-+Payments+V2+DAS+Space
+Setup instructions can be found at the following link, which will help you set up your environment and access the correct repositories: https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/4948754681/DAS+Payments+-+Developer+Onboarding+2025
 
 ### Config
 
@@ -39,7 +39,8 @@ To run locally, create a file `local.settings.json` in the `SFA.DAS.Payments.Sch
     "RequiredPaymentAuditDataCleanUpQueue": "{use queue name from your Payments V2 service bus namespace}",
     "ApprenticeshipValidationSchedule": "0 6 * * *",
     "AuditDataCleanUpSchedule": "0 6 * * *",
-    "LevyAccountValidationSchedule": "0 6 * * *"
+    "LevyAccountValidationSchedule": "0 6 * * *",
+    "LevyAccountBalanceEndpoint": "sfa-das-payments-levyaccountbalance"
   },
   "ConnectionStrings": {
     "ServiceBusConnectionString": "{use connection string from your Payments V2 service bus namespace}"
@@ -55,7 +56,7 @@ N/A
 
 ## Technologies
 
-* .NetCore 2.1/3.1/6
+* .NetCore 6
 * Azure SQL Server
 * Azure Functions
 * Azure Service Bus
