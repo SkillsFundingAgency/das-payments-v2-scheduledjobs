@@ -186,7 +186,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
                        WHERE EE.JobId IN ({sqlParamName})",
                 sqlParameters);
 
-            _logger.LogInformation($"DELETED {earningEventPeriodCount} earningEventPeriods for JobIds {paramValues}");
+            _logger.LogInformation($"DELETED {earningEventPeriodCount} earningEventPeriods for JobId {paramValues}");
 
             var earningEventPriceEpisodeCount = await _paymentDataContext.Database.ExecuteSqlRawAsync(
                 $@"DELETE Payments2.EarningEventPriceEpisode 
@@ -195,13 +195,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
                        WHERE EE.JobId IN ({sqlParamName})",
                 sqlParameters);
 
-            _logger.LogInformation($"DELETED {earningEventPriceEpisodeCount} earningEventPriceEpisodes for JobIds {paramValues}");
+            _logger.LogInformation($"DELETED {earningEventPriceEpisodeCount} earningEventPriceEpisodes for JobId {paramValues}");
 
             var earningEventCount = await _paymentDataContext.Database.ExecuteSqlRawAsync(
                 $"DELETE Payments2.EarningEvent WHERE JobId IN ({sqlParamName})",
                 sqlParameters);
 
-            _logger.LogInformation($"DELETED {earningEventCount} EarningEvents for JobIds {paramValues}");
+            _logger.LogInformation($"DELETED {earningEventCount} EarningEvents for JobId {paramValues}");
         }
 
         private async Task DeleteFundingSourceEvent(IList<SqlParameter> sqlParameters, string sqlParamName, string paramValues)
@@ -210,7 +210,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
                 $"DELETE Payments2.FundingSourceEvent WHERE JobId IN ({sqlParamName}) AND (Payments2.FundingSourceEvent.FundingPlatformType = 1 OR Payments2.FundingSourceEvent.FundingPlatformType IS NULL)",
                 sqlParameters);
 
-            _logger.LogInformation($"DELETED {fundingSourceEventCount} FundingSourceEvents for JobIds {paramValues}");
+            _logger.LogInformation($"DELETED {fundingSourceEventCount} FundingSourceEvents for JobId {paramValues}");
         }
 
         private async Task DeleteRequiredPaymentEvent(IList<SqlParameter> sqlParameters, string sqlParamName, string paramValues)
@@ -219,7 +219,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
                 $"DELETE Payments2.RequiredPaymentEvent WHERE JobId IN ({sqlParamName})",
                 sqlParameters);
 
-            _logger.LogInformation($"DELETED {requiredPaymentEventCount} RequiredPaymentEvents for JobIds {paramValues}");
+            _logger.LogInformation($"DELETED {requiredPaymentEventCount} RequiredPaymentEvents for JobId {paramValues}");
         }
 
         private async Task DeleteDataLockEvent(IList<SqlParameter> sqlParameters, string sqlParamName, string paramValues)
@@ -232,7 +232,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
                        WHERE DL.JobId IN ({sqlParamName})",
                 sqlParameters);
 
-            _logger.LogInformation($"DELETED {dataLockEventNonPayablePeriodFailuresCount} DataLockEventNonPayablePeriodFailures for JobIds {paramValues}");
+            _logger.LogInformation($"DELETED {dataLockEventNonPayablePeriodFailuresCount} DataLockEventNonPayablePeriodFailures for JobId {paramValues}");
 
             var dataLockEventNonPayablePeriodCount = await _paymentDataContext.Database.ExecuteSqlRawAsync(
                 $@"DELETE Payments2.DataLockEventNonPayablePeriod 
@@ -241,7 +241,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
                        WHERE DL.JobId IN ({sqlParamName})",
                 sqlParameters);
 
-            _logger.LogInformation($"DELETED {dataLockEventNonPayablePeriodCount} DataLockEventNonPayablePeriods for JobIds {paramValues}");
+            _logger.LogInformation($"DELETED {dataLockEventNonPayablePeriodCount} DataLockEventNonPayablePeriods for JobId {paramValues}");
 
             var dataLockEventPayablePeriodCount = await _paymentDataContext.Database.ExecuteSqlRawAsync(
                 $@"DELETE Payments2.DataLockEventPayablePeriod 
@@ -250,7 +250,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
                        WHERE DL.JobId IN ({sqlParamName})",
                 sqlParameters);
 
-            _logger.LogInformation($"DELETED {dataLockEventPayablePeriodCount} DataLockEventPayablePeriods for JobIds {paramValues}");
+            _logger.LogInformation($"DELETED {dataLockEventPayablePeriodCount} DataLockEventPayablePeriods for JobId {paramValues}");
 
             var dataLockEventPriceEpisodeCount = await _paymentDataContext.Database.ExecuteSqlRawAsync(
                 $@"DELETE Payments2.DataLockEventPriceEpisode 
@@ -259,13 +259,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
                        WHERE DL.JobId IN ({sqlParamName})",
                 sqlParameters);
 
-            _logger.LogInformation($"DELETED {dataLockEventPriceEpisodeCount} DataLockEventPriceEpisodes for JobIds {paramValues}");
+            _logger.LogInformation($"DELETED {dataLockEventPriceEpisodeCount} DataLockEventPriceEpisodes for JobId {paramValues}");
 
             var dataLockEventCount = await _paymentDataContext.Database.ExecuteSqlRawAsync(
                 $"DELETE Payments2.DataLockEvent WHERE JobId IN ({sqlParamName})",
                 sqlParameters);
 
-            _logger.LogInformation($"DELETED {dataLockEventCount} DataLockEvents for JobIds {paramValues}");
+            _logger.LogInformation($"DELETED {dataLockEventCount} DataLockEvents for JobId {paramValues}");
         }
 
     }
