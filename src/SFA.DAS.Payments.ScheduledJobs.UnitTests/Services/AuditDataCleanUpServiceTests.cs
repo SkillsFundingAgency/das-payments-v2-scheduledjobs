@@ -318,5 +318,30 @@ namespace SFA.DAS.Payments.ScheduledJobs.UnitTests.Services
             result.FundingSource.Should().HaveCount(4);
             result.RequiredPayments.Should().HaveCount(4);
         }
+
+        [Test]
+        public async Task TriggerAuditDataCleanup_ShouldCreateBatchesWithOneMessagePerBatch()
+        {
+            SetDevConfigPeriods();
+
+            var batches = new[] { Batch(11, 22, 33, 44) };
+
+            _auditDataCleanUpDataserviceMock
+                .Setup(a => a.GetSubmissionJobsToBeDeletedBatches("07", "2324"))
+                .ReturnsAsync(batches);
+            _auditDataCleanUpDataserviceMock
+                .Setup(a => a.GetSubmissionJobsToBeDeletedBatches("08", "2324"))
+                .ReturnsAsync(Enumerable.Empty<SubmissionJobsToBeDeletedBatch>());
+
+            var sut = CreateSut();
+
+            var result = await sut.TriggerAuditDataCleanUp();
+
+            result.Should().NotBeNull();
+            result.DataLock.Should().HaveCount(4);
+            result.EarningAudit.Should().HaveCount(4);
+            result.FundingSource.Should().HaveCount(4);
+            result.RequiredPayments.Should().HaveCount(4);
+        }
     }
 }

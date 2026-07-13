@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.Payments.Core;
+using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ScheduledJobs.Bindings;
 using SFA.DAS.Payments.ScheduledJobs.Common;
 
@@ -81,10 +82,14 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 
             foreach (var batch in batches)
             {
-                auditDataCleanUpBinding.DataLock.Add(new DataLockAuditData { JobsToBeDeleted = batch.JobsToBeDeleted });
-                auditDataCleanUpBinding.EarningAudit.Add(new EarningAuditData { JobsToBeDeleted = batch.JobsToBeDeleted });
-                auditDataCleanUpBinding.FundingSource.Add(new FundingSourceAuditData { JobsToBeDeleted = batch.JobsToBeDeleted });
-                auditDataCleanUpBinding.RequiredPayments.Add(new RequiredPaymentAuditData { JobsToBeDeleted = batch.JobsToBeDeleted });
+                foreach (var job in batch.JobsToBeDeleted)
+                {
+                    var jobIdToBeDeleted = new List<SubmissionJobsToBeDeletedModel> { job }.ToArray();
+                    auditDataCleanUpBinding.DataLock.Add(new DataLockAuditData { JobsToBeDeleted = jobIdToBeDeleted });
+                    auditDataCleanUpBinding.EarningAudit.Add(new EarningAuditData { JobsToBeDeleted = jobIdToBeDeleted });
+                    auditDataCleanUpBinding.FundingSource.Add(new FundingSourceAuditData { JobsToBeDeleted = jobIdToBeDeleted });
+                    auditDataCleanUpBinding.RequiredPayments.Add(new RequiredPaymentAuditData { JobsToBeDeleted = jobIdToBeDeleted });
+                }
             }
 
             return auditDataCleanUpBinding;
