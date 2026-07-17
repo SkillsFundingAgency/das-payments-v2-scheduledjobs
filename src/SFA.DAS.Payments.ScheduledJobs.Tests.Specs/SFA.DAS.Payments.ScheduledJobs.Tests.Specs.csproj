@@ -39,10 +39,4 @@
 	  <ProjectReference Include="..\SFA.DAS.Payments.ScheduledJobs\SFA.DAS.Payments.ScheduledJobs.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <None Update="appSettings.local.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
-
 </Project>
