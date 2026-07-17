@@ -320,7 +320,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Tests.Specs.StepDefinitions
             ;
             
             testSession.DataContext.DataLockEvents.Add(dataLockEvent);
-            testSession.DataContext.EarningEvents.Add(earningEventFaker.Generate(1).First());
+            testSession.DataContext.EarningEvents.Add(earningEvent);
             testSession.DataContext.FundingSourceEvents.Add(fundingSourceEventFaker.Generate(1).First());
             testSession.DataContext.RequiredPaymentEvents.Add(requiredPaymentEventFaker.Generate(1).First());
             testSession.DataContext.Jobs.Add(submissionJobFaker.Generate(1).First());
