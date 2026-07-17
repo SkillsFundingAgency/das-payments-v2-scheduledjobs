@@ -29,6 +29,8 @@ The application uses `local.settings.json` for configuration. Key settings inclu
 The project uses Microsoft Dependency Injection to manage dependencies. Key services and configurations are registered in the `DependencyInjection` class.
 
 ### Example Configuration
+
+```
 {
     "IsEncrypted": false,
     "Values": {
@@ -70,7 +72,7 @@ The project uses Microsoft Dependency Injection to manage dependencies. Key serv
         "PaymentsConnectionString": "{use connection string from your Payments V2 service bus namespace}"
     }
 }
-
+```
 
 
 
@@ -115,6 +117,27 @@ To run the application locally, ensure you have the necessary configuration in `
 
 
 This will start the Azure Functions runtime and execute the scheduled jobs as configured.
+
+
+## Running the Acceptance Tests (Specs) project
+
+The Specs project requires a config file called `appSettings.local.json` to be created.
+
+```
+{
+  "ConnectionStrings": {
+    "StorageConnectionString": "(( the connection string for your local Azurite storage emulator ))",
+    "ServiceBusConnectionString": "(( connection string to your development Azure Service Bus instance, this will be prefixed 'das-pv2-dev-'))",
+    "PaymentsConnectionString": "(( connection string to your local DASPayments database ))"
+  }
+}
+```
+
+When running on an Azure dev VM you may find that the default Azurite port 10000 is already in use, so you should structure the connection string as described in this article if you are using non-default ports:
+
+https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite
+
+To run the tests, you will need to start the `SFA.DAS.Payments.ScheduledJobs` function app project without debugging. You can then run the tests from th Resharper test runner.
 
 ## Contributing
 
