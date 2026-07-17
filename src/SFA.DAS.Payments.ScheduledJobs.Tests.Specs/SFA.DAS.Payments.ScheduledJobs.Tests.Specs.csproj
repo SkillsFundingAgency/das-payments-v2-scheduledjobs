@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="appSettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="appSettings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Bogus" Version="35.6.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.32" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.32" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="NServiceBus.Newtonsoft.Json" Version="3.0.1" />
+		<PackageReference Include="NServiceBus.Persistence.AzureTable" Version="5.0.2" />
+		<PackageReference Include="NServiceBus.Transport.AzureServiceBus" Version="3.2.6" />
+		<PackageReference Include="Reqnroll.NUnit" Version="2.2.1" />
+		<PackageReference Include="nunit" Version="3.14.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+		<PackageReference Include="SFA.DAS.Payments.Application" Version="2.5.1" />
+		<PackageReference Include="SFA.DAS.Payments.Messages.Common" Version="2.5.1" />
+		<PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.5.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\SFA.DAS.Payments.ScheduledJobs\SFA.DAS.Payments.ScheduledJobs.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="appSettings.local.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+</Project>
