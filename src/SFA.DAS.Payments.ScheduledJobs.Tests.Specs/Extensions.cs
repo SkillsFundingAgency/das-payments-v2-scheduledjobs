@@ -29,12 +29,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Tests.Specs
         }
         private static DateTime ParseTwoPartDescription(string dateText)
         {
-            //string GetAppSetting(string keyName)
-            //{
-            //    return ConfigurationManager.AppSettings[keyName] ?? throw new InvalidOperationException($"{keyName} not found in app settings.");
-            //}
-
-            var enableRollOverTesting = false; /// bool.Parse(GetAppSetting("EnableRollOverTesting") ?? "false");
+            var enableRollOverTesting = false; 
 
             switch (dateText.ToLower())
             {

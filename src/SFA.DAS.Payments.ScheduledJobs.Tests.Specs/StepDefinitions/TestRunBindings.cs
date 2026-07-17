@@ -22,7 +22,6 @@ namespace SFA.DAS.Payments.ScheduledJobs.Tests.Specs.StepDefinitions
             var conventions = endpointConfig.Conventions();
             conventions.DefiningMessagesAs(type => type.IsMessage());
             endpointConfig.UseSerialization<NewtonsoftJsonSerializer>();
-            //endpointConfig.SendOnly();
             var storageConnectionString = Config["ConnectionStrings:StorageConnectionString"];
             endpointConfig.UsePersistence<AzureTablePersistence>().ConnectionString(storageConnectionString);
             endpointConfig.UseTransport<AzureServiceBusTransport>()
