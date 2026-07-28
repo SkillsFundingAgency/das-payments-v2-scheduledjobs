@@ -350,5 +350,6 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 /src/SFA.DAS.Payments.ScheduledJobs/host.json
-
-appSettings.local.json
+/src/.github/copilot-instructions.md
+/src/SFA.DAS.Payments.ScheduledJobs.Tests.Specs/appSettings.local.json
+/src/SFA.DAS.Payments.ScheduledJobs.Tests.Specs/Features/*.cs
