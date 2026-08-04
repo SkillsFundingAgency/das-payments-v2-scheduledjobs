@@ -1,11 +1,5 @@
 next-version: 1.0.3
-mode: Mainline
-
-branches:
-  main:
-    regex: ^main$
-    increment: Patch
-    is-main-branch: true
+mode: mainline
 
 legacy-semver-padding: 0
 build-metadata-padding: 0
