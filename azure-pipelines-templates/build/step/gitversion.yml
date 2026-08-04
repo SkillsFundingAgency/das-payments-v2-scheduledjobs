@@ -2,13 +2,19 @@ parameters:
   ConfigFilePath: GitVersion.yml
 
 steps:
-- task: gitversion/setup@0
-  displayName: gitversion/setup
+- task: UseDotNet@2
+  displayName: 'Use .NET Core SDK 8.0.x'
   inputs:
-    versionSpec: 5.12.0
+    packageType: sdk
+    version: '8.0.x'
+
+- task: gitversion/setup@0
+  displayName: 'gitversion/setup'
+  inputs:
+    versionSpec: '5.12.0'
 
 - task: gitversion/execute@0
-  displayName: gitversion/execute
+  displayName: 'gitversion/execute'
   inputs:
     useConfigFile: true
     configFilePath: ${{ parameters.ConfigFilePath }}
