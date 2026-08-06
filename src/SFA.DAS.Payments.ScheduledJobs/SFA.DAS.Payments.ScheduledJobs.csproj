@@ -21,8 +21,8 @@
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.1469" />
-		<PackageReference Include="SFA.DAS.Payments.Application" Version="2.6.0-prerelease-10" />
-		<PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.6.0-prerelease-10" />
+		<PackageReference Include="SFA.DAS.Payments.Application" Version="2.7.0" />
+		<PackageReference Include="SFA.DAS.Payments.Model.Core" Version="2.7.0" />
 		<PackageReference Include="SFA.DAS.Payments.FundingSource.Messages" Version="1.0.3-prerelease-50" />
 
 		<PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.4" />
