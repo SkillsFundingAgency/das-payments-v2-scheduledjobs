@@ -35,10 +35,10 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
 
         public async Task<AuditDataCleanUpBinding> TriggerAuditDataCleanUp()
         {
-            var previousAcademicYearCollectionPeriod = _configuration.GetConfigurationValue(_environment, "PreviousAcademicYearCollectionPeriod");
-            var previousAcademicYear = _configuration.GetConfigurationValue(_environment, "PreviousAcademicYear");
-            var currentCollectionPeriod = _configuration.GetConfigurationValue(_environment, "CurrentCollectionPeriod");
-            var currentAcademicYear = _configuration.GetConfigurationValue(_environment, "CurrentAcademicYear");
+            var previousAcademicYearCollectionPeriod = GetConfigurationValue("PreviousAcademicYearCollectionPeriod");
+            var previousAcademicYear = GetConfigurationValue("PreviousAcademicYear");
+            var currentCollectionPeriod = GetConfigurationValue("CurrentCollectionPeriod");
+            var currentAcademicYear = GetConfigurationValue("CurrentAcademicYear");
 
             var previousSubmissionJobsToBeDeletedBatches = await GetSubmissionJobsToBeDeletedBatches(previousAcademicYearCollectionPeriod, previousAcademicYear);
             var currentSubmissionJobsToBeDeletedBatches = await GetSubmissionJobsToBeDeletedBatches(currentCollectionPeriod, currentAcademicYear);
@@ -54,6 +54,13 @@ namespace SFA.DAS.Payments.ScheduledJobs.Services
             }
 
             return null;
+        }
+
+        private string GetConfigurationValue(string key)
+        {
+            return _environment.IsDevelopment()
+                ? _configuration.GetValue<string>(key)
+                : Environment.GetEnvironmentVariable(key);
         }
 
         private async Task<IEnumerable<SubmissionJobsToBeDeletedBatch>> GetSubmissionJobsToBeDeletedBatches(string collectionPeriod, string academicYear)
