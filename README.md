@@ -37,8 +37,10 @@ To run locally, create a file `local.settings.json` in the `SFA.DAS.Payments.Sch
     "FundingSourceAuditDataCleanUpQueue": "{use queue name from your Payments V2 service bus namespace}",
     "LevyAccountSchedule": "0 6 * * *",
     "RequiredPaymentAuditDataCleanUpQueue": "{use queue name from your Payments V2 service bus namespace}",
+    "GsoRequiredPaymentAuditDataCleanUpQueue": "{use queue name from your Payments V2 service bus namespace}",
     "ApprenticeshipValidationSchedule": "0 6 * * *",
     "AuditDataCleanUpSchedule": "0 6 * * *",
+    "GsoAuditDataCleanUpSchedule": "0 6 * * *",
     "LevyAccountValidationSchedule": "0 6 * * *",
     "LevyAccountBalanceEndpoint": "sfa-das-payments-levyaccountbalance"
   },

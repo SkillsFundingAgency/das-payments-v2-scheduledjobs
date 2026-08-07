@@ -29,6 +29,7 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
                 });
             }, ServiceLifetime.Transient);
             services.AddScoped<IPaymentsDataContext, PaymentsDataContext>();
+            services.AddScoped(sp => new GsoPaymentsDataContext(sp.GetRequiredService<DbContextOptions<PaymentsDataContext>>()));
             return services;
         }
 
@@ -75,6 +76,8 @@ namespace SFA.DAS.Payments.ScheduledJobs.Ioc
             services.AddScoped<ILevyAccountValidationService, LevyAccountValidationService>();
             services.AddScoped<IExecutionContext, ESFA.DC.Logging.ExecutionContext>();
             services.AddScoped<IAuditDataCleanUpDataservice, AuditDataCleanUpDataservice>();
+            services.AddScoped<IGsoAuditDataCleanUpService, GsoAuditDataCleanUpService>();
+            services.AddScoped<IGsoAuditDataCleanUpDataService, GsoAuditDataCleanUpDataService>();
 
             // Register FluentValidation validators
             services.AddTransient<IValidator<LevyAccountsDto>, LevyAccountValidator>();

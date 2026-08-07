@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Payments.Model.Core.Audit;
 using SFA.DAS.Payments.ScheduledJobs.Bindings;
+using SFA.DAS.Payments.ScheduledJobs.Common;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Services
 {

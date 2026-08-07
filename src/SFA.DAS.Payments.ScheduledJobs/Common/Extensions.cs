@@ -1,5 +1,7 @@
 ﻿
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using SFA.DAS.Payments.Model.Core.Audit;
 
 namespace SFA.DAS.Payments.ScheduledJobs.Common
@@ -21,9 +23,26 @@ namespace SFA.DAS.Payments.ScheduledJobs.Common
             return items.Select((item, index) => new SqlParameter($"@DcJobId{index}", item.DcJobId)).ToList();
         }
 
+        public static IEnumerable<GsoJobsToBeDeletedBatch> ToBatch(this IEnumerable<Guid> externalEarningsIds, int maxItems)
+        {
+            return externalEarningsIds.Select((externalEarningsId, index) => new { externalEarningsId, index })
+                .GroupBy(x => x.index / maxItems)
+                .Select(g => new GsoJobsToBeDeletedBatch
+                {
+                    ExternalEarningsIdsToBeDeleted = g.Select(batch => batch.externalEarningsId).ToArray()
+                });
+        }
+
         public static bool IsNullOrEmpty<T>(this IList<T> list)
         {
             return list == null || list.Count == 0;
+        }
+
+        public static string GetConfigurationValue(this IConfiguration configuration, IHostEnvironment environment, string key)
+        {
+            return environment.IsDevelopment()
+                ? configuration.GetValue<string>(key)
+                : Environment.GetEnvironmentVariable(key);
         }
     }
 }
