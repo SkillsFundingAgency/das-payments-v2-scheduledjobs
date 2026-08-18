@@ -63,18 +63,18 @@ stages:
 #       ArtifactName: $(ArtifactName)
 #       Environment: DST
 
-# - stage: Deploy_SIT
-#   dependsOn: Build_Unit_Tests
-#   displayName: Deploy to SIT
-#   variables:
-#   - group: SIT das-payments-v2-scheduledjobsfunction
-#   jobs:
-#   - template: pipeline-templates/job/deploy.yml
-#     parameters:
-#       ServiceConnection: DCT-VSO
-#       SolutionBaseName: ${{ variables.SolutionBaseName }}
-#       ArtifactName: $(ArtifactName)
-#       Environment: SIT
+- stage: Deploy_SIT
+  dependsOn: Build_Unit_Tests
+  displayName: Deploy to SIT
+  variables:
+  - group: SIT das-payments-v2-scheduledjobsfunction
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      ServiceConnection: DCT-VSO
+      SolutionBaseName: ${{ variables.SolutionBaseName }}
+      ArtifactName: $(ArtifactName)
+      Environment: SIT
 
 # - stage: Deploy_ETE
 #   dependsOn: Build_Unit_Tests
