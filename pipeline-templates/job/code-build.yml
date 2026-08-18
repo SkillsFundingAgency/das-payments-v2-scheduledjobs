@@ -39,6 +39,7 @@ jobs:
       projects: src/SFA.DAS.Payments.ScheduledJobs/SFA.DAS.Payments.ScheduledJobs.csproj
       arguments: '--configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory)\ScheduledJobs'
       modifyOutputPath: false
+      zipAfterPublish: false
 
   - task: PublishPipelineArtifact@1
     displayName: 'Publish Pipeline Artifact'
