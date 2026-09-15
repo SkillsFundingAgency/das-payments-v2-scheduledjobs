@@ -1,0 +1,407 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "functionAppName": {
+      "type": "string"
+    },
+    "environmentName": {
+      "type": "string",
+      "metadata": {
+        "description": "Short environment name, e.g. DAS, DST, SIT, ETE, MO, PP, PD. Applied as a resource tag."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing storage account used for the Flex Consumption deployment container"
+      }
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "[concat('DCOL-', parameters('environmentName'), '-VNET-WEU')]",
+      "metadata": {
+        "description": "VNet holding the function app integration subnet. Defaults to the DCOL-<ENV>-VNET-WEU naming pattern; override for environments that don't follow it."
+      }
+    },
+    "vnetResourceGroupName": {
+      "type": "string",
+      "defaultValue": "[parameters('vnetName')]",
+      "metadata": {
+        "description": "Resource group holding the VNet. Defaults to the VNet name, which is the pattern used by every environment so far."
+      }
+    },
+    "functionAppSubnetName": {
+      "type": "string",
+      "defaultValue": "DCOL-FunctionApp-Integration-Subnet"
+    },
+    "deploymentContainerName": {
+      "type": "string",
+      "defaultValue": "scheduledjobs-app-package",
+      "metadata": {
+        "description": "Blob container the Flex Consumption package is deployed to. Must already exist and must not be shared with another function app."
+      }
+    },
+    "maximumInstanceCount": {
+      "type": "int",
+      "defaultValue": 100
+    },
+    "instanceMemoryMB": {
+      "type": "int",
+      "defaultValue": 2048,
+      "allowedValues": [
+        512,
+        2048,
+        4096
+      ]
+    },
+    "apprenticeshipValidationSchedule": {
+      "type": "string",
+      "metadata": {
+        "description": "NCRONTAB expression for the TimerTriggerApprenticeshipsReferenceDataComparison timer trigger"
+      }
+    },
+    "auditDataCleanUpSchedule": {
+      "type": "string",
+      "metadata": {
+        "description": "NCRONTAB expression for the AuditDataCleanUpTrigger timer trigger"
+      }
+    },
+    "levyAccountSchedule": {
+      "type": "string",
+      "metadata": {
+        "description": "NCRONTAB expression for the LevyAccountImport timer trigger"
+      }
+    },
+    "levyAccountValidationSchedule": {
+      "type": "string",
+      "metadata": {
+        "description": "NCRONTAB expression for the TimerTriggerLevyAccountValidation timer trigger"
+      }
+    },
+    "currentAcademicYear": {
+      "type": "string",
+      "metadata": {
+        "description": "Academic year the audit data clean up runs against, e.g. 2526"
+      }
+    },
+    "currentCollectionPeriod": {
+      "type": "string",
+      "metadata": {
+        "description": "Collection period the audit data clean up runs against, e.g. 12"
+      }
+    },
+    "previousAcademicYear": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Previous academic year for the audit data clean up. Empty disables the previous-year pass, which is the current state in all environments."
+      }
+    },
+    "previousAcademicYearCollectionPeriod": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Collection period within previousAcademicYear. Empty disables the previous-year pass."
+      }
+    },
+    "accountApiBaseUrl": {
+      "type": "string"
+    },
+    "accountApiClientId": {
+      "type": "string"
+    },
+    "accountApiIdentifierUri": {
+      "type": "string"
+    },
+    "accountApiTenant": {
+      "type": "string"
+    },
+    "accountApiBatchSize": {
+      "type": "string",
+      "defaultValue": "1000"
+    },
+    "levyAccountBalanceEndpoint": {
+      "type": "string",
+      "defaultValue": "sfa-das-payments-levyaccountbalance",
+      "metadata": {
+        "description": "Service Bus queue the levy account import publishes ImportEmployerAccounts to"
+      }
+    },
+    "dataLockAuditDataCleanUpQueue": {
+      "type": "string",
+      "defaultValue": "sfa-das-payments-ScheduledJobs-DataLock"
+    },
+    "earningAuditDataCleanUpQueue": {
+      "type": "string",
+      "defaultValue": "sfa-das-payments-ScheduledJobs-Earning"
+    },
+    "fundingSourceAuditDataCleanUpQueue": {
+      "type": "string",
+      "defaultValue": "sfa-das-payments-ScheduledJobs-FundingSource"
+    },
+    "requiredPaymentAuditDataCleanUpQueue": {
+      "type": "string",
+      "defaultValue": "sfa-das-payments-ScheduledJobs-RequiredPayment"
+    },
+    "logLevel": {
+      "type": "string",
+      "defaultValue": "Warning",
+      "metadata": {
+        "description": "Minimum log level for the ESFA.DC application logger"
+      }
+    },
+    "hostLogLevelDefault": {
+      "type": "string",
+      "defaultValue": "Warning",
+      "metadata": {
+        "description": "Value for AzureFunctionsJobHost__logging__logLevel__default"
+      }
+    },
+    "hostLogLevelFunction": {
+      "type": "string",
+      "defaultValue": "Warning",
+      "metadata": {
+        "description": "Value for AzureFunctionsJobHost__logging__logLevel__Function"
+      }
+    },
+    "azureWebJobsStorage": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Connection string for the storage account the Functions host uses for internal state and for the deployment container"
+      }
+    },
+    "paymentsConnectionString": {
+      "type": "securestring"
+    },
+    "commitmentsConnectionString": {
+      "type": "securestring"
+    },
+    "serviceBusConnectionString": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Connection string used by the Service Bus triggers and the levy account publisher"
+      }
+    },
+    "accountApiClientSecret": {
+      "type": "securestring"
+    },
+    "appInsightsInstrumentationKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Value for the APPINSIGHTS_INSTRUMENTATIONKEY setting read by the Functions host"
+      }
+    },
+    "applicationInsightsInstrumentationKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Value for the ApplicationInsightsInstrumentationKey setting read by the application"
+      }
+    },
+    "applicationInsightsConnectionString": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Connection string for the Application Insights resource. Required on Flex Consumption, which has no filesystem log streaming"
+      }
+    }
+  },
+  "variables": {
+    "functionAppApiVersion": "2023-12-01",
+    "deploymentStorageContainerUri": "[concat('https://', parameters('storageAccountName'), '.blob.core.windows.net/', parameters('deploymentContainerName'))]",
+    "functionAppSubnetId": "[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('functionAppSubnetName'))]",
+    "appSettings": [
+      {
+        "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+        "value": "[parameters('appInsightsInstrumentationKey')]"
+      },
+      {
+        "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+        "value": "[parameters('applicationInsightsConnectionString')]"
+      },
+      {
+        "name": "AccountApiBaseUrl",
+        "value": "[parameters('accountApiBaseUrl')]"
+      },
+      {
+        "name": "AccountApiBatchSize",
+        "value": "[parameters('accountApiBatchSize')]"
+      },
+      {
+        "name": "AccountApiClientId",
+        "value": "[parameters('accountApiClientId')]"
+      },
+      {
+        "name": "AccountApiClientSecret",
+        "value": "[parameters('accountApiClientSecret')]"
+      },
+      {
+        "name": "AccountApiIdentifierUri",
+        "value": "[parameters('accountApiIdentifierUri')]"
+      },
+      {
+        "name": "AccountApiTenant",
+        "value": "[parameters('accountApiTenant')]"
+      },
+      {
+        "name": "ApplicationInsightsInstrumentationKey",
+        "value": "[parameters('applicationInsightsInstrumentationKey')]"
+      },
+      {
+        "name": "ApprenticeshipValidationSchedule",
+        "value": "[parameters('apprenticeshipValidationSchedule')]"
+      },
+      {
+        "name": "AuditDataCleanUpSchedule",
+        "value": "[parameters('auditDataCleanUpSchedule')]"
+      },
+      {
+        "name": "AzureFunctionsJobHost__logging__logLevel__default",
+        "value": "[parameters('hostLogLevelDefault')]"
+      },
+      {
+        "name": "AzureFunctionsJobHost__logging__logLevel__Function",
+        "value": "[parameters('hostLogLevelFunction')]"
+      },
+      {
+        "name": "AzureWebJobsStorage",
+        "value": "[parameters('azureWebJobsStorage')]"
+      },
+      {
+        "name": "CommitmentsConnectionString",
+        "value": "[parameters('commitmentsConnectionString')]"
+      },
+      {
+        "name": "CurrentAcademicYear",
+        "value": "[parameters('currentAcademicYear')]"
+      },
+      {
+        "name": "CurrentCollectionPeriod",
+        "value": "[parameters('currentCollectionPeriod')]"
+      },
+      {
+        "name": "DataLockAuditDataCleanUpQueue",
+        "value": "[parameters('dataLockAuditDataCleanUpQueue')]"
+      },
+      {
+        "name": "DEPLOYMENT_STORAGE_CONNECTION_STRING",
+        "value": "[parameters('azureWebJobsStorage')]"
+      },
+      {
+        "name": "EarningAuditDataCleanUpQueue",
+        "value": "[parameters('earningAuditDataCleanUpQueue')]"
+      },
+      {
+        "name": "FundingSourceAuditDataCleanUpQueue",
+        "value": "[parameters('fundingSourceAuditDataCleanUpQueue')]"
+      },
+      {
+        "name": "LevyAccountBalanceEndpoint",
+        "value": "[parameters('levyAccountBalanceEndpoint')]"
+      },
+      {
+        "name": "LevyAccountSchedule",
+        "value": "[parameters('levyAccountSchedule')]"
+      },
+      {
+        "name": "LevyAccountValidationSchedule",
+        "value": "[parameters('levyAccountValidationSchedule')]"
+      },
+      {
+        "name": "LogLevel",
+        "value": "[parameters('logLevel')]"
+      },
+      {
+        "name": "PaymentsConnectionString",
+        "value": "[parameters('paymentsConnectionString')]"
+      },
+      {
+        "name": "PreviousAcademicYear",
+        "value": "[parameters('previousAcademicYear')]"
+      },
+      {
+        "name": "PreviousAcademicYearCollectionPeriod",
+        "value": "[parameters('previousAcademicYearCollectionPeriod')]"
+      },
+      {
+        "name": "RequiredPaymentAuditDataCleanUpQueue",
+        "value": "[parameters('requiredPaymentAuditDataCleanUpQueue')]"
+      },
+      {
+        "name": "ServiceBusConnectionString",
+        "value": "[parameters('serviceBusConnectionString')]"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "name": "[parameters('functionAppName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2023-12-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Environment": "[parameters('environmentName')]"
+      },
+      "sku": {
+        "name": "FC1",
+        "tier": "FlexConsumption"
+      },
+      "kind": "functionapp",
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "name": "[parameters('functionAppName')]",
+      "type": "Microsoft.Web/sites",
+      "kind": "functionapp,linux",
+      "apiVersion": "[variables('functionAppApiVersion')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Environment": "[parameters('environmentName')]"
+      },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppName'))]",
+        "virtualNetworkSubnetId": "[variables('functionAppSubnetId')]",
+        "clientAffinityEnabled": false,
+        "httpsOnly": true,
+        "siteConfig": {
+          "appSettings": "[variables('appSettings')]",
+          "minTlsVersion": "1.2",
+          "ftpsState": "Disabled"
+        },
+        "functionAppConfig": {
+          "deployment": {
+            "storage": {
+              "type": "blobContainer",
+              "value": "[variables('deploymentStorageContainerUri')]",
+              "authentication": {
+                "type": "StorageAccountConnectionString",
+                "storageAccountConnectionStringName": "DEPLOYMENT_STORAGE_CONNECTION_STRING"
+              }
+            }
+          },
+          "scaleAndConcurrency": {
+            "maximumInstanceCount": "[parameters('maximumInstanceCount')]",
+            "instanceMemoryMB": "[parameters('instanceMemoryMB')]"
+          },
+          "runtime": {
+            "name": "dotnet-isolated",
+            "version": "8.0"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "managedServiceIdentityId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', parameters('functionAppName')), variables('functionAppApiVersion'), 'Full').identity.principalId]"
+    }
+  }
+}
